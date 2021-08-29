@@ -18,6 +18,6 @@ namespace win32
 
 		Type type;
 		bool success{ false };
-		abstract_task* task{ reactor::get_current_task() };
+		basic_task* task{ reactor::get_current_task() };
 	};
 }

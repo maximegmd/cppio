@@ -7,68 +7,15 @@
 #include <cassert>
 #include <concepts>
 
+#include "basic_task.h"
+
 struct abstract_reactor;
 
 template <class T, class U>
 concept Derived = std::is_base_of<U, T>::value;
 
-struct abstract_task : std::enable_shared_from_this<abstract_task>
-{
-    enum class ScheduleType
-    {
-        kDone,
-        kRun,
-        kWait
-    };
-
-    void set_pool(abstract_reactor* pool);
-    void wake();
-    void wait();
-    void start_async_sleep(std::chrono::nanoseconds delay);
-    bool is_waiting() const;
-
-    ScheduleType one_step();
-
-    struct promise_base
-    {
-        std::coroutine_handle<promise_base> m_inner_handler{};
-        std::coroutine_handle<promise_base> m_outer_handler{};
-
-        auto final_suspend() noexcept
-        {
-            return std::suspend_always{};
-        }
-
-        template <typename T>
-        auto&& await_transform(T&& obj) const noexcept {
-            return std::forward<T>(obj);
-        }
-
-        void unhandled_exception()
-        {
-            std::terminate();
-        }
-
-        void rethrow_if_unhandled_exception()
-        {
-
-        }
-    };
-
-    virtual ~abstract_task() {};
-    virtual std::coroutine_handle<promise_base> get_promise_base() = 0;
-
-protected:
-
-    std::atomic<bool> m_waiting{ false };
-
-private:
-
-    abstract_reactor* m_pool{ nullptr };
-};
-
 template <typename T = void>
-struct task final : abstract_task
+struct task final : basic_task
 {
     struct task_promise;
 
@@ -165,7 +112,7 @@ struct task final : abstract_task
 };
 
 template <>
-struct task<void> final : abstract_task
+struct task<void> final : basic_task
 {
     struct task_promise;
 

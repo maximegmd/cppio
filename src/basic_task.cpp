@@ -1,34 +1,34 @@
-#include "task.h"
+#include "basic_task.h"
 #include "reactor.h"
 
-void abstract_task::set_pool(abstract_reactor* pool)
+void basic_task::set_pool(abstract_reactor* pool)
 { 
     m_pool = pool; 
 }
 
-void abstract_task::wake()
+void basic_task::wake()
 {
     m_waiting = false;
     m_pool->schedule(this);
 }
 
-void abstract_task::wait()
+void basic_task::wait()
 {
     m_waiting = true;
 }
 
-void abstract_task::start_async_sleep(std::chrono::nanoseconds delay)
+void basic_task::start_async_sleep(std::chrono::nanoseconds delay)
 {
     wait();
     m_pool->start_timer(delay, this);
 }
 
-bool abstract_task::is_waiting() const
+bool basic_task::is_waiting() const
 {
     return m_waiting;
 }
 
-abstract_task::ScheduleType abstract_task::one_step()
+basic_task::ScheduleType basic_task::one_step()
 {
     assert(!m_waiting);
 

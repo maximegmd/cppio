@@ -6,19 +6,19 @@
 
 #include "timer_pool.h"
 
-struct abstract_task;
+struct basic_task;
 
 struct abstract_reactor
 {
-    void add(std::shared_ptr<abstract_task> p_task);
-    void schedule(abstract_task* p_task);
-    void start_timer(std::chrono::nanoseconds delay, abstract_task* p_task);
+    void add(std::shared_ptr<basic_task> p_task);
+    void schedule(basic_task* p_task);
+    void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
 
 protected:
 
     std::mutex m_lock;
-    std::list<abstract_task*> m_tasks;
-    std::unordered_set<std::shared_ptr<abstract_task>> m_active_tasks;
+    std::list<basic_task*> m_tasks;
+    std::unordered_set<std::shared_ptr<basic_task>> m_active_tasks;
     timer_pool m_timers;
 };
 
@@ -29,9 +29,9 @@ struct basic_reactor : abstract_reactor
     ~basic_reactor();
 
     void run();
-    void start_timer(std::chrono::nanoseconds delay, abstract_task* p_task);
+    void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
 
-    static abstract_task* get_current_task();
+    static basic_task* get_current_task();
     static basic_reactor* get_current();
     T& get_completion_port() { return m_completion_object; }
 
@@ -44,7 +44,7 @@ private:
     std::vector<std::jthread> m_runners;
 
     inline static thread_local basic_reactor* s_current_reactor;
-    inline static thread_local abstract_task* s_current_task;
+    inline static thread_local basic_task* s_current_task;
 };
 
 #define BASIC_REACTOR_INL_DO

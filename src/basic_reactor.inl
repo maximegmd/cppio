@@ -47,7 +47,7 @@ void basic_reactor<T>::run()
 }
 
 template<class T>
-abstract_task* basic_reactor<T>::get_current_task()
+basic_task* basic_reactor<T>::get_current_task()
 {
     return s_current_task;
 }
@@ -63,7 +63,7 @@ void basic_reactor<T>::process_tasks()
 {
     while (!m_tasks.empty())
     {
-        abstract_task* p_task = nullptr;
+        basic_task* p_task = nullptr;
         {
             std::lock_guard _{ m_lock };
             if (m_tasks.empty())
@@ -77,19 +77,19 @@ void basic_reactor<T>::process_tasks()
         s_current_reactor = this;
         s_current_task = p_task;
 
-        auto result = abstract_task::ScheduleType::kWait;
+        auto result = basic_task::ScheduleType::kWait;
         if (!p_task->is_waiting())
             result = p_task->one_step();
 
         s_current_task = p_old_task;
         s_current_reactor = p_old_basic_reactor;
 
-        if (result == abstract_task::ScheduleType::kRun)
+        if (result == basic_task::ScheduleType::kRun)
         {
             std::lock_guard _{ m_lock };
             m_tasks.push_back(p_task);
         }
-        if (result == abstract_task::ScheduleType::kDone)
+        if (result == basic_task::ScheduleType::kDone)
         {
             std::lock_guard _{ m_lock };
             m_active_tasks.erase(p_task->shared_from_this());
