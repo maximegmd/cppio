@@ -5,8 +5,13 @@
 #include <optional>
 #include <thread>
 #include <cassert>
+#include <concepts>
 
-struct reactor;
+struct abstract_reactor;
+
+template <class T, class U>
+concept Derived = std::is_base_of<U, T>::value;
+
 struct abstract_task
 {
     enum class ScheduleType
@@ -16,8 +21,9 @@ struct abstract_task
         kWait
     };
 
-    void set_pool(reactor* pool);
+    void set_pool(abstract_reactor* pool);
     void wake();
+    void wait();
     void start_async_sleep(std::chrono::nanoseconds delay);
     bool is_waiting() const;
 
@@ -57,7 +63,7 @@ protected:
 
 private:
 
-    reactor* m_pool{ nullptr };
+    abstract_reactor* m_pool{ nullptr };
 };
 
 template <typename T>
@@ -89,6 +95,14 @@ struct task : abstract_task
         return !m_handle || m_handle.done();
     }
 
+    template<Derived<promise_base> T>
+    bool await_suspend(std::coroutine_handle<T> handle)
+    {
+        handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());
+        m_handle.promise().m_outer_handler = std::coroutine_handle<promise_base>::from_address(handle.address());
+        return true;
+    }
+
     bool await_suspend(std::coroutine_handle<> handle)
     {
         return true;
@@ -108,7 +122,7 @@ struct task : abstract_task
 
     auto await_resume()
     {
-        return *m_handle.promise().m_value;
+        return std::move(*m_handle.promise().m_value);
     }
 
     ~task()
@@ -131,9 +145,9 @@ struct task : abstract_task
             return std::suspend_always{};
         }
 
-        void return_value(T t)
+        void return_value(T&& t)
         {
-            m_value = t;
+            m_value = std::forward<T>(t);
         }
 
         task<T> get_return_object()
@@ -164,6 +178,14 @@ struct task<void> : abstract_task
     bool await_ready()
     {
         return !m_handle || m_handle.done();
+    }
+
+    template<Derived<promise_base> T>
+    bool await_suspend(std::coroutine_handle<T> handle)
+    {
+        handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());
+        m_handle.promise().m_outer_handler = std::coroutine_handle<promise_base>::from_address(handle.address());
+        return true;
     }
 
     bool await_suspend(std::coroutine_handle<> handle)
@@ -198,7 +220,7 @@ struct task<void> : abstract_task
     {
         auto initial_suspend()
         {
-            return std::suspend_never{};
+            return std::suspend_always{};
         }
 
         void return_void()

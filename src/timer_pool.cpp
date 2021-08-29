@@ -24,7 +24,7 @@ void timer_pool::process()
 std::chrono::nanoseconds timer_pool::get_delay()
 {
 	auto now = std::chrono::high_resolution_clock::now();
-	std::chrono::nanoseconds wait_time = std::chrono::minutes(1);
+	std::chrono::nanoseconds wait_time{ 0 };
 
 	std::lock_guard _{ m_lock };
 

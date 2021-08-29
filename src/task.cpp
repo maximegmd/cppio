@@ -1,7 +1,7 @@
 #include "task.h"
 #include "reactor.h"
 
-void abstract_task::set_pool(reactor* pool) 
+void abstract_task::set_pool(abstract_reactor* pool)
 { 
     m_pool = pool; 
 }
@@ -12,9 +12,14 @@ void abstract_task::wake()
     m_pool->schedule(this);
 }
 
-void abstract_task::start_async_sleep(std::chrono::nanoseconds delay)
+void abstract_task::wait()
 {
     m_waiting = true;
+}
+
+void abstract_task::start_async_sleep(std::chrono::nanoseconds delay)
+{
+    wait();
     m_pool->start_timer(delay, this);
 }
 

@@ -1,6 +1,9 @@
 #include "task.h"
 #include "reactor.h"
 #include "async_sleep.h"
+#include "async_tcp_socket.h"
+
+#include <winsock2.h>
 
 namespace
 {
@@ -43,27 +46,45 @@ namespace
         co_return 5 + a + b + c;
     }
 
+    task<void> tcp_echo(async_tcp_socket socket)
+    {
+        // Pretend to do something for now
+        co_await async_sleep(std::chrono::seconds(5));
+        std::printf("We sent some data yay!\n");
+    }
+
+    task<bool> tcp_test()
+    {
+        auto sock = async_tcp_socket::create_listener(12345);
+        if (!sock.has_value())
+            co_return false;
+
+        std::vector<std::unique_ptr<task<void>>> tasks;
+        while (true)
+        {
+            auto accepted = co_await sock->accept();
+            std::printf("Accepted a socket!\n");
+            tasks.emplace_back(std::make_unique<task<void>>(tcp_echo(std::move(*accepted))));
+
+            reactor::get_current()->add((tasks.end() - 1)->get());
+        }
+        co_return true;
+    }
 }
 
 int main()
 {
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 0), &wsaData);
+
     reactor pool(16);
 
-    std::vector<std::unique_ptr<task<int>>> tasks;
-    for (int i = 0; i < 1000; ++i)
-    {
-        tasks.emplace_back(std::make_unique<task<int>>(run()));
-        pool.add(tasks[i].get());
-    }
+    auto task = tcp_test();
 
+    pool.add(&task);
     pool.run();
 
     int sum = 0;
-
-    for (auto& task : tasks)
-    {
-        sum += task->await_resume();
-    }
 
     return sum;
 }

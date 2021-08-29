@@ -9,6 +9,7 @@ target("cppio")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
     add_includedirs("src/", {public = true})
+    add_syslinks("ws2_32", "Mswsock")
 
 target("tests")
     set_kind("binary")
