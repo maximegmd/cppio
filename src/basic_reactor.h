@@ -10,7 +10,7 @@ struct abstract_task;
 
 struct abstract_reactor
 {
-    void add(abstract_task* p_task);
+    void add(std::shared_ptr<abstract_task> p_task);
     void schedule(abstract_task* p_task);
     void start_timer(std::chrono::nanoseconds delay, abstract_task* p_task);
 
@@ -18,7 +18,7 @@ protected:
 
     std::mutex m_lock;
     std::list<abstract_task*> m_tasks;
-    std::unordered_set<abstract_task*> m_active_tasks;
+    std::unordered_set<std::shared_ptr<abstract_task>> m_active_tasks;
     timer_pool m_timers;
 };
 

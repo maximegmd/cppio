@@ -92,7 +92,7 @@ void basic_reactor<T>::process_tasks()
         if (result == abstract_task::ScheduleType::kDone)
         {
             std::lock_guard _{ m_lock };
-            m_active_tasks.erase(p_task);
+            m_active_tasks.erase(p_task->shared_from_this());
         }
     }
 }

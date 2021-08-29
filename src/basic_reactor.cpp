@@ -1,11 +1,11 @@
 #include "basic_reactor.h"
 #include "task.h"
 
-void abstract_reactor::add(abstract_task* p_task)
+void abstract_reactor::add(std::shared_ptr<abstract_task> p_task)
 {
     {
         std::lock_guard _{ m_lock };
-        m_tasks.push_back(p_task);
+        m_tasks.push_back(p_task.get());
         m_active_tasks.insert(p_task);
     }
 

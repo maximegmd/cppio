@@ -12,7 +12,7 @@ struct abstract_reactor;
 template <class T, class U>
 concept Derived = std::is_base_of<U, T>::value;
 
-struct abstract_task
+struct abstract_task : std::enable_shared_from_this<abstract_task>
 {
     enum class ScheduleType
     {
@@ -55,6 +55,7 @@ struct abstract_task
         }
     };
 
+    virtual ~abstract_task() {};
     virtual std::coroutine_handle<promise_base> get_promise_base() = 0;
 
 protected:
@@ -66,11 +67,12 @@ private:
     abstract_reactor* m_pool{ nullptr };
 };
 
-template <typename T>
-struct task : abstract_task
+template <typename T = void>
+struct task final : abstract_task
 {
     struct task_promise;
 
+    using pointer = std::shared_ptr<task>;
     using promise_type = task_promise;
     using handle_type = std::coroutine_handle<promise_type>;
 
@@ -89,6 +91,11 @@ struct task : abstract_task
 
     task& operator=(const task&) = delete;
     task& operator=(task&&) = delete;
+
+    pointer to_owned()
+    {
+        return std::make_shared<task>(std::move(*this));
+    }
 
     bool await_ready()
     {
@@ -125,7 +132,7 @@ struct task : abstract_task
         return std::move(*m_handle.promise().m_value);
     }
 
-    ~task()
+    virtual ~task()
     {
         if (m_handle)
             m_handle.destroy();
@@ -158,10 +165,11 @@ struct task : abstract_task
 };
 
 template <>
-struct task<void> : abstract_task
+struct task<void> final : abstract_task
 {
     struct task_promise;
 
+    using pointer = std::shared_ptr<task>;
     using promise_type = task_promise;
     using handle_type = std::coroutine_handle<promise_type>;
 
@@ -174,6 +182,11 @@ struct task<void> : abstract_task
     task(task&& other) noexcept
         : m_handle(std::exchange(other.m_handle, nullptr))
     {}
+
+    pointer to_owned()
+    {
+        return std::make_shared<task>(std::move(*this));
+    }
 
     bool await_ready()
     {
@@ -210,7 +223,7 @@ struct task<void> : abstract_task
         return 0;
     }
 
-    ~task()
+    virtual ~task()
     {
         if (m_handle)
             m_handle.destroy();

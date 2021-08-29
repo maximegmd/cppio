@@ -46,29 +46,31 @@ namespace
         co_return 5 + a + b + c;
     }
 
-    task<void> tcp_echo(async_tcp_socket socket)
+    task<> tcp_echo(async_tcp_socket socket)
     {
         // Pretend to do something for now
         co_await async_sleep(std::chrono::seconds(5));
         std::printf("We sent some data yay!\n");
     }
 
-    task<bool> tcp_test()
+    task<> tcp_test()
     {
         auto sock = async_tcp_socket::create_listener(12345);
         if (!sock.has_value())
-            co_return false;
+            co_return;
 
-        std::vector<std::unique_ptr<task<void>>> tasks;
         while (true)
         {
             auto accepted = co_await sock->accept();
-            std::printf("Accepted a socket!\n");
-            tasks.emplace_back(std::make_unique<task<void>>(tcp_echo(std::move(*accepted))));
 
-            reactor::get_current()->add((tasks.end() - 1)->get());
+            if (accepted.has_value())
+            {
+                std::printf("Accepted a socket!\n");
+
+                auto p_task = tcp_echo(std::move(*accepted)).to_owned();
+                reactor::get_current()->add(p_task);
+            }
         }
-        co_return true;
     }
 }
 
@@ -79,9 +81,9 @@ int main()
 
     reactor pool(16);
 
-    auto task = tcp_test();
+    auto p_task = tcp_test().to_owned();
 
-    pool.add(&task);
+    pool.add(p_task);
     pool.run();
 
     int sum = 0;
