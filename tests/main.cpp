@@ -2,6 +2,7 @@
 #include "reactor.h"
 #include "async_sleep.h"
 #include "async_tcp_socket.h"
+#include "async_tcp_acceptor.h"
 
 #include <winsock2.h>
 
@@ -55,7 +56,7 @@ namespace
 
     task<> tcp_test()
     {
-        auto sock = async_tcp_socket::create_listener(12345);
+        auto sock = async_tcp_acceptor::create(12345);
         if (!sock.has_value())
             co_return;
 
