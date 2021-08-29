@@ -26,7 +26,7 @@ namespace win32
 
 		auto result = GetQueuedCompletionStatus(m_handle, &bytes_transferred, &completion_key, (OVERLAPPED**)&p_overlapped, delay);
 
-		if (!p_overlapped)
+		if (!p_overlapped || !result)
 			return;
 
 		if (p_overlapped->type == basic_overlapped::Type::kTcpSocket)
