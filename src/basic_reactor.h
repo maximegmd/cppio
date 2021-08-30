@@ -20,13 +20,13 @@ namespace cppio
 
         void add(std::shared_ptr<basic_task> p_task);
         
-        void schedule(basic_task* p_task);
+        void schedule(std::shared_ptr<basic_task> p_task);
         void start_timer(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task);
 
     protected:
 
         std::mutex m_lock;
-        std::list<basic_task*> m_tasks;
+        std::list<std::shared_ptr<basic_task>> m_tasks;
         std::unordered_set<std::shared_ptr<basic_task>> m_active_tasks;
         timer_pool m_timers;
     };

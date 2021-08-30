@@ -47,7 +47,8 @@ Connection: Closed
         if (!sock)
             co_return false;
 
-        while (true)
+       
+        for(int i = 0; i < 5; ++i)
         {
             auto accepted = co_await sock->accept();
 
@@ -68,7 +69,9 @@ int main()
     if (!cppio::initialize(16))
         return -1;
 
-    auto result = cppio::spawn(http_test()).get();
+    cppio::spawn(http_test());
+
+    cppio::wait_for_all();
 
     return 0;
 }

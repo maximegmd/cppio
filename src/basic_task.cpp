@@ -3,31 +3,30 @@
 
 namespace cppio
 {
-    void basic_task::wake()
+    void basic_task::wake() noexcept
     {
         m_waiting = false;
-        reactor::get_current()->schedule(this);
+        reactor::get_current()->schedule(shared_from_this());
     }
 
-    void basic_task::wait()
+    void basic_task::wait() noexcept
     {
         m_waiting = true;
     }
 
-    void basic_task::cancel_wait()
+    void basic_task::cancel_wait() noexcept
     {
         m_waiting = false;
     }
 
-    void basic_task::start_async_sleep(std::chrono::nanoseconds delay)
-    {
-        wait();
-        reactor::get_current()->start_timer(delay, shared_from_this());
-    }
-
-    bool basic_task::is_waiting() const
+    bool basic_task::is_waiting() const noexcept
     {
         return m_waiting;
+    }
+
+    bool basic_task::await_suspend(std::coroutine_handle<> handle)
+    {
+        return true;
     }
 
     basic_task::ScheduleType basic_task::one_step()

@@ -21,10 +21,11 @@ namespace cppio
     template <typename T = void>
     struct task final : basic_task
     {
-        struct task_promise;
+        template<class T>
+        struct final_task_promise;
 
         using pointer = std::shared_ptr<task>;
-        using promise_type = task_promise;
+        using promise_type = final_task_promise<T>;
         using handle_type = std::coroutine_handle<promise_type>;
 
         mutable handle_type m_handle;
@@ -32,6 +33,7 @@ namespace cppio
         task(handle_type handle)
             : m_handle(handle)
         {
+            std::printf("task new %d\n", id);
         }
 
         task(task&& other) noexcept
@@ -40,13 +42,15 @@ namespace cppio
             other.m_handle = nullptr;
         }
 
+        virtual ~task()
+        {
+            if (m_handle)
+                m_handle.destroy();
+        }
+
+        task(const task&) = delete;
         task& operator=(const task&) = delete;
         task& operator=(task&&) = delete;
-
-        pointer to_owned()
-        {
-            return std::make_shared<task>(std::move(*this));
-        }
 
         bool await_ready()
         {
@@ -66,11 +70,6 @@ namespace cppio
             return true;
         }
 
-        bool await_suspend(std::coroutine_handle<> handle)
-        {
-            return true;
-        }
-
         std::coroutine_handle<promise_base> get_promise_base() override
         {
             return std::coroutine_handle<promise_base>::from_address(m_handle.address());
@@ -86,31 +85,32 @@ namespace cppio
             m_handle.promise().m_notifier.get_future().get();
         }
 
-        virtual ~task()
-        {
-            if (m_handle)
-                m_handle.destroy();
-        }
+    private:
 
         struct task_promise : promise_base
         {
-            std::optional<T> m_value{};
             std::promise<void> m_notifier{};
+
+            auto initial_suspend()
+            {
+                return std::suspend_always{};
+            }
+        };
+
+        template<class T>
+        struct final_task_promise : task_promise
+        {
+            std::optional<T> m_value;
 
             auto value()
             {
                 return std::move(*m_value);
             }
 
-            auto initial_suspend()
-            {
-                return std::suspend_always{};
-            }
-
             void return_value(T&& t)
             {
                 m_value = std::forward<T>(t);
-                m_notifier.set_value();
+                task_promise::m_notifier.set_value();
             }
 
             task<T> get_return_object()
@@ -118,92 +118,16 @@ namespace cppio
                 return { handle_type::from_promise(*this) };
             }
         };
-    };
 
-    template <>
-    struct task<void> final : basic_task
-    {
-        struct task_promise;
-
-        using pointer = std::shared_ptr<task>;
-        using promise_type = task_promise;
-        using handle_type = std::coroutine_handle<promise_type>;
-
-        mutable handle_type m_handle;
-
-        task(handle_type handle)
-            : m_handle(handle)
+        template<>
+        struct final_task_promise<void> : task_promise
         {
-        }
-
-        task(task&& other) noexcept
-            : m_handle(std::exchange(other.m_handle, nullptr))
-        {}
-
-        pointer to_owned()
-        {
-            return std::make_shared<task>(std::move(*this));
-        }
-
-        bool await_ready()
-        {
-            return !m_handle || m_handle.done();
-        }
-
-        template<Derived<promise_base> T>
-        bool await_suspend(std::coroutine_handle<T> handle)
-        {
-            handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());
-            m_handle.promise().m_outer_handler = std::coroutine_handle<promise_base>::from_address(handle.address());
-            return true;
-        }
-
-        bool await_suspend(std::coroutine_handle<> handle)
-        {
-            return true;
-        }
-
-        auto await_resume()
-        {
-            return;
-        }
-
-        auto get_future()
-        {
-            return cppio::future(std::static_pointer_cast<task<void>>(shared_from_this()));
-        }
-
-        std::coroutine_handle<promise_base> get_promise_base() override
-        {
-            return std::coroutine_handle<promise_base>::from_address(m_handle.address());
-        }
-
-        void wait()
-        {
-            m_handle.promise().m_notifier.get_future().get();
-        }
-
-        virtual ~task()
-        {
-            if (m_handle)
-                m_handle.destroy();
-        }
-
-        struct task_promise : promise_base
-        {
-            std::promise<void> m_notifier{};
-
-            auto initial_suspend()
-            {
-                return std::suspend_always{};
-            }
-
             void return_void()
             {
-                m_notifier.set_value();
+                task_promise::m_notifier.set_value();
             }
 
-            task<void> get_return_object()
+            task<T> get_return_object()
             {
                 return { handle_type::from_promise(*this) };
             }

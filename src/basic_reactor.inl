@@ -10,7 +10,7 @@ namespace cppio
     template<class T>
     auto abstract_reactor::spawn(task<T> a_task)
     {
-        auto p_task = a_task.to_owned();
+        auto p_task = std::make_shared<task<T>>(std::move(a_task));
         add(p_task);
         return p_task->get_future();
     }
@@ -22,9 +22,9 @@ namespace cppio
         for (size_t i = 0; i < worker_count; ++i)
         {
             m_runners.emplace_back([this]()
-                {
-                    run();
-                });
+            {
+                run();
+            });
         }
     }
 
@@ -78,7 +78,7 @@ namespace cppio
     {
         while (!m_tasks.empty())
         {
-            basic_task* p_task;
+            std::shared_ptr<basic_task> p_task;
             {
                 std::lock_guard _{ m_lock };
                 if (m_tasks.empty())
@@ -91,7 +91,7 @@ namespace cppio
                 break;
 
             auto* p_old_task = s_current_task;
-            s_current_task = p_task;
+            s_current_task = p_task.get();
 
             auto result = basic_task::ScheduleType::kWait;
             if (!p_task->is_waiting())
@@ -107,7 +107,7 @@ namespace cppio
             if (result == basic_task::ScheduleType::kDone)
             {
                 std::lock_guard _{ m_lock };
-                m_active_tasks.erase(p_task->shared_from_this());
+                m_active_tasks.erase(p_task);
             }
         }
     }

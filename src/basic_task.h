@@ -20,11 +20,12 @@ namespace cppio
             kWait
         };
 
-        void wake();
-        void wait();
-        void cancel_wait();
-        void start_async_sleep(std::chrono::nanoseconds delay);
-        bool is_waiting() const;
+        void wait() noexcept;
+        void cancel_wait() noexcept;
+        void wake() noexcept;
+        [[nodiscard]] bool is_waiting() const noexcept;
+
+        bool await_suspend(std::coroutine_handle<> handle);
 
         ScheduleType one_step();
 

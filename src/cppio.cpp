@@ -20,4 +20,9 @@ namespace cppio
 	{
 		return s_reactor.get();
 	}
+
+	void wait_for_all()
+	{
+		::cppio::get()->run();
+	}
 }

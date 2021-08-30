@@ -13,6 +13,8 @@ namespace cppio
 	{
 		return ::cppio::get()->spawn(std::move(a_task));
 	}
+
+	void wait_for_all();
 }
 
 

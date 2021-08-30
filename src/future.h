@@ -1,6 +1,6 @@
 #pragma once
 
-#include "task.h"
+#include <memory>
 
 namespace cppio
 {
@@ -12,15 +12,30 @@ namespace cppio
     {
         future(std::shared_ptr<task<T>> task) : m_task(std::move(task)) {}
 
-        T get()
-        {
-            m_task->wait();
-
-            return std::move(m_task->await_resume());
-        }
+        T get() noexcept;
 
     private:
 
         std::shared_ptr<task<T>> m_task;
     };
+}
+
+#include "task.h"
+
+namespace cppio
+{
+    template<class T>
+    T future<T>::get() noexcept
+    {
+        if (!m_task)
+            return {};
+
+        m_task->wait();
+
+        auto res = std::move(m_task->await_resume());
+
+        m_task = nullptr;
+
+        return res;
+    }
 }
