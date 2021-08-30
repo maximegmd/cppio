@@ -21,7 +21,7 @@ namespace cppio
         void add(std::shared_ptr<basic_task> p_task);
         
         void schedule(basic_task* p_task);
-        void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
+        void start_timer(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task);
 
     protected:
 

@@ -18,7 +18,7 @@ namespace cppio
         }
     }
 
-    void abstract_reactor::start_timer(std::chrono::nanoseconds delay, basic_task* p_task)
+    void abstract_reactor::start_timer(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task)
     {
         m_timers.add(delay, p_task);
     }

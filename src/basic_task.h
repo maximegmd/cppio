@@ -22,6 +22,7 @@ namespace cppio
 
         void wake();
         void wait();
+        void cancel_wait();
         void start_async_sleep(std::chrono::nanoseconds delay);
         bool is_waiting() const;
 

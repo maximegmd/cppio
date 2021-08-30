@@ -1,6 +1,7 @@
 #pragma once
 
 #include "platform.h"
+#include "task.h"
 
 namespace cppio
 {
@@ -14,6 +15,9 @@ namespace cppio
 
 		tcp_socket& operator=(const tcp_socket&) = delete;
 		tcp_socket& operator=(tcp_socket&& rhs) noexcept;
+
+		task<size_t> read(void* p_buffer, size_t size) noexcept;
+		task<size_t> write(const void* p_buffer, size_t size) noexcept;
 
 	protected:
 

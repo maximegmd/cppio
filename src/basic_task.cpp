@@ -14,10 +14,15 @@ namespace cppio
         m_waiting = true;
     }
 
+    void basic_task::cancel_wait()
+    {
+        m_waiting = false;
+    }
+
     void basic_task::start_async_sleep(std::chrono::nanoseconds delay)
     {
         wait();
-        reactor::get_current()->start_timer(delay, this);
+        reactor::get_current()->start_timer(delay, shared_from_this());
     }
 
     bool basic_task::is_waiting() const

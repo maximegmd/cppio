@@ -78,7 +78,7 @@ namespace cppio
     {
         while (!m_tasks.empty())
         {
-            basic_task* p_task = nullptr;
+            basic_task* p_task;
             {
                 std::lock_guard _{ m_lock };
                 if (m_tasks.empty())
@@ -86,6 +86,9 @@ namespace cppio
                 p_task = m_tasks.front();
                 m_tasks.pop_front();
             }
+
+            if (!p_task)
+                break;
 
             auto* p_old_task = s_current_task;
             s_current_task = p_task;

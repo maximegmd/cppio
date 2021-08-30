@@ -18,6 +18,7 @@ namespace cppio::win32
 
 		Type type;
 		bool success{ false };
-		basic_task* task{ reactor::get_current_task() };
+		size_t bytes_transferred{ 0 };
+		std::shared_ptr<basic_task> task{ reactor::get_current_task()->shared_from_this() };
 	};
 }

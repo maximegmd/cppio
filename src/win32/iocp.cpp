@@ -5,7 +5,7 @@ namespace cppio::win32
 {
 	iocp::iocp()
 	{
-		m_handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 100);
+		m_handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
 	}
 
 	iocp::~iocp()
@@ -32,6 +32,7 @@ namespace cppio::win32
 		{
 			p_overlapped->success = true;
 			p_overlapped->task->wake();
+			p_overlapped->bytes_transferred = bytes_transferred;
 		}
 	}
 

@@ -13,7 +13,7 @@ namespace cppio
 		timer_pool();
 		~timer_pool();
 
-		void add(std::chrono::nanoseconds delay, basic_task* p_task);
+		void add(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task);
 
 		void process();
 		std::chrono::nanoseconds get_delay();
@@ -23,7 +23,7 @@ namespace cppio
 		struct delay_for
 		{
 			std::chrono::time_point<std::chrono::high_resolution_clock> when;
-			basic_task* p_task;
+			std::shared_ptr<basic_task> p_task;
 
 			bool operator<(const delay_for& rhs) const
 			{

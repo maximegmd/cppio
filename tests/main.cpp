@@ -9,54 +9,37 @@ using cppio::task;
 
 namespace
 {
-    task<void> suspend_none()
+    task<std::string> build_response(const std::string& data)
     {
-        std::printf("suspend_none\n");
-        co_return;
-    }
-
-    task<int> suspend_one()
-    {
-        std::printf("suspend_one %d\\\n", std::this_thread::get_id());
-        co_await std::suspend_always();
-        std::printf("suspend_one /\n");
-        co_return 1;
-    }
-
-    task<int> suspend_two()
-    {
-        co_await suspend_none();
-        auto a = co_await suspend_one();
-        co_await suspend_none();
+        // Pretend we are doing some database work or something
         co_await cppio::sleep(std::chrono::seconds(1));
-        auto b = co_await suspend_one();
-        co_return a + b;
+
+        auto response = R"V0G0N(HTTP/1.1 200 OK
+Date: Mon, 27 Jul 2009 12:28:53 GMT
+Server: cppio/0.0.1
+Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
+Content-Length: ")V0G0N" + std::to_string(data.size()) + 
+R"V0G0N(Content-Type: text/html
+Connection: Closed
+
+)V0G0N" + data;
+
+        co_return std::move(response);
     }
 
-    task<int> suspend_five()
+    task<> http_hello(cppio::tcp_socket socket)
     {
-        auto a = co_await suspend_two();
-        auto b = co_await suspend_two();
-        co_return 1 + a + b;
+        char data[1025];
+        auto read = co_await socket.read(data, 1024);
+        data[read] = 0;
+
+        std::string content = "<html><h1>Hello!</h1></html>";
+        auto response = co_await build_response(content);
+
+        auto sent = co_await socket.write(response.c_str(), response.size());
     }
 
-    task<int> run()
-    {
-        std::printf("run\n");
-        auto a = co_await suspend_five();
-        auto b = co_await suspend_five();
-        auto c = co_await suspend_five();
-        co_return 5 + a + b + c;
-    }
-
-    task<> tcp_echo(cppio::tcp_socket socket)
-    {
-        // Pretend to do something for now
-        co_await cppio::sleep(std::chrono::seconds(5));
-        std::printf("We sent some data yay!\n");
-    }
-
-    task<bool> tcp_test()
+    task<bool> http_test()
     {
         auto sock = cppio::tcp_listener::create(12345);
         if (!sock)
@@ -68,9 +51,9 @@ namespace
 
             if (accepted)
             {
-                std::printf("Accepted a socket!\n");
+                std::printf("New TCP connection!\n");
 
-                cppio::spawn(tcp_echo(std::move(*accepted)));
+                cppio::spawn(http_hello(std::move(*accepted)));
             }
         }
 
@@ -83,8 +66,7 @@ int main()
     if (!cppio::initialize(16))
         return -1;
 
-    auto result = cppio::spawn(tcp_test());
-    auto wait = result.get();
+    auto result = cppio::spawn(http_test()).get();
 
     return 0;
 }

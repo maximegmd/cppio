@@ -11,7 +11,7 @@ namespace cppio
 	{
 	}
 
-	void timer_pool::add(std::chrono::nanoseconds delay, basic_task* p_task)
+	void timer_pool::add(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task)
 	{
 		std::lock_guard _{ m_lock };
 		m_tasks.insert({ std::chrono::high_resolution_clock::now() + delay, p_task });
