@@ -38,7 +38,6 @@ namespace cppio
         ~basic_reactor();
 
         void run();
-        void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
 
         static basic_task* get_current_task();
         static basic_reactor* get_current();

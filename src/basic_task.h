@@ -20,7 +20,6 @@ namespace cppio
             kWait
         };
 
-        void set_pool(abstract_reactor* pool);
         void wake();
         void wait();
         void start_async_sleep(std::chrono::nanoseconds delay);
@@ -38,11 +37,6 @@ namespace cppio
                 return std::suspend_always{};
             }
 
-            template <typename T>
-            auto&& await_transform(T&& obj) const noexcept {
-                return std::forward<T>(obj);
-            }
-
             void unhandled_exception()
             {
                 std::terminate();
@@ -50,7 +44,6 @@ namespace cppio
 
             void rethrow_if_unhandled_exception()
             {
-
             }
         };
 
@@ -60,9 +53,5 @@ namespace cppio
     protected:
 
         std::atomic<bool> m_waiting{ false };
-
-    private:
-
-        abstract_reactor* m_pool{ nullptr };
     };
 }

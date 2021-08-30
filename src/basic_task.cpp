@@ -3,15 +3,10 @@
 
 namespace cppio
 {
-    void basic_task::set_pool(abstract_reactor* pool)
-    {
-        m_pool = pool;
-    }
-
     void basic_task::wake()
     {
         m_waiting = false;
-        m_pool->schedule(this);
+        reactor::get_current()->schedule(this);
     }
 
     void basic_task::wait()
@@ -22,7 +17,7 @@ namespace cppio
     void basic_task::start_async_sleep(std::chrono::nanoseconds delay)
     {
         wait();
-        m_pool->start_timer(delay, this);
+        reactor::get_current()->start_timer(delay, this);
     }
 
     bool basic_task::is_waiting() const

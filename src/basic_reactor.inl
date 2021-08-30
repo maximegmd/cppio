@@ -39,6 +39,9 @@ namespace cppio
     {
         while (!m_active_tasks.empty())
         {
+            auto* p_old_basic_reactor = get_current();
+            s_current_reactor = this;
+
             auto wait_time = m_timers.get_delay();
             if (m_tasks.empty() && wait_time == wait_time.zero())
             {
@@ -51,6 +54,8 @@ namespace cppio
                 break;
 
             process_tasks();
+
+            s_current_reactor = p_old_basic_reactor;
         }
 
         m_completion_object.notify_one();
@@ -82,9 +87,7 @@ namespace cppio
                 m_tasks.pop_front();
             }
 
-            auto* p_old_basic_reactor = get_current();
             auto* p_old_task = s_current_task;
-            s_current_reactor = this;
             s_current_task = p_task;
 
             auto result = basic_task::ScheduleType::kWait;
@@ -92,7 +95,6 @@ namespace cppio
                 result = p_task->one_step();
 
             s_current_task = p_old_task;
-            s_current_reactor = p_old_basic_reactor;
 
             if (result == basic_task::ScheduleType::kRun)
             {
