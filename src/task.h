@@ -33,7 +33,6 @@ namespace cppio
         task(handle_type handle)
             : m_handle(handle)
         {
-            std::printf("task new %d\n", id);
         }
 
         task(task&& other) noexcept
