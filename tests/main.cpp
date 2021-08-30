@@ -1,5 +1,4 @@
 #include "task.h"
-#include "reactor.h"
 #include "sleep.h"
 #include "tcp_socket.h"
 #include "tcp_listener.h"
@@ -45,6 +44,8 @@ Connection: Closed
 
         // And now that we resumed we can send the result.
         auto sent = co_await connection.write(response.c_str(), response.size());
+
+        std::printf("Send data!\n");
     }
 
     task<bool> http_test()
