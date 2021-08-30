@@ -2,16 +2,25 @@
 
 #include "basic_reactor.h"
 
-#ifdef _WIN32
+#include "platform.h"
+
+#if CPPIO_PLATFORM_WIN
 #include "win32/iocp.h"
-struct reactor : basic_reactor<win32::iocp>
-#else
+#elif CPPIO_PLATFORM_POSIX
 #include "posix/epoll.h"
-struct reactor : basic_reactor<posix::epoll>
 #endif
+
+namespace cppio
 {
-	reactor(size_t worker_count = 1) : basic_reactor(worker_count) {}
-};
+#if CPPIO_PLATFORM_WIN
+	struct reactor : basic_reactor<win32::iocp>
+#elif CPPIO_PLATFORM_POSIX
+	struct reactor : basic_reactor<posix::epoll>
+#endif
+	{
+		reactor(size_t worker_count = 1) : basic_reactor(worker_count) {}
+	};
+}
 
 
 

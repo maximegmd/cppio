@@ -1,6 +1,6 @@
 #include "basic_overlapped.h"
 
-namespace win32
+namespace cppio::win32
 {
 	basic_overlapped::basic_overlapped(Type a_type)
 		: type{ a_type }

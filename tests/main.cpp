@@ -1,10 +1,11 @@
 #include "task.h"
 #include "reactor.h"
-#include "async_sleep.h"
-#include "async_tcp_socket.h"
-#include "async_tcp_acceptor.h"
+#include "sleep.h"
+#include "tcp_socket.h"
+#include "tcp_listener.h"
+#include "cppio.h"
 
-#include <winsock2.h>
+using cppio::task;
 
 namespace
 {
@@ -21,12 +22,13 @@ namespace
         std::printf("suspend_one /\n");
         co_return 1;
     }
+
     task<int> suspend_two()
     {
         co_await suspend_none();
         auto a = co_await suspend_one();
         co_await suspend_none();
-        co_await async_sleep(std::chrono::seconds(1));
+        co_await cppio::sleep(std::chrono::seconds(1));
         auto b = co_await suspend_one();
         co_return a + b;
     }
@@ -47,47 +49,41 @@ namespace
         co_return 5 + a + b + c;
     }
 
-    task<> tcp_echo(async_tcp_socket socket)
+    task<> tcp_echo(cppio::tcp_socket socket)
     {
         // Pretend to do something for now
-        co_await async_sleep(std::chrono::seconds(5));
+        co_await cppio::sleep(std::chrono::seconds(5));
         std::printf("We sent some data yay!\n");
     }
 
-    task<> tcp_test()
+    task<bool> tcp_test()
     {
-        auto sock = async_tcp_acceptor::create(12345);
-        if (!sock.has_value())
-            co_return;
+        auto sock = cppio::tcp_listener::create(12345);
+        if (!sock)
+            co_return false;
 
         while (true)
         {
             auto accepted = co_await sock->accept();
 
-            if (accepted.has_value())
+            if (accepted)
             {
                 std::printf("Accepted a socket!\n");
 
-                auto p_task = tcp_echo(std::move(*accepted)).to_owned();
-                reactor::get_current()->add(p_task);
+                cppio::spawn(tcp_echo(std::move(*accepted)));
             }
         }
+
+        co_return true;
     }
 }
 
 int main()
 {
-    WSADATA wsaData;
-    WSAStartup(MAKEWORD(2, 0), &wsaData);
+    cppio::initialize(16);
 
-    reactor pool(16);
+    auto result = cppio::spawn(tcp_test());
+    auto wait = result.get();
 
-    auto p_task = tcp_test().to_owned();
-
-    pool.add(p_task);
-    pool.run();
-
-    int sum = 0;
-
-    return sum;
+    return 0;
 }

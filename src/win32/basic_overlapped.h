@@ -5,7 +5,7 @@
 #include <winsock2.h>
 #include "../reactor.h"
 
-namespace win32
+namespace cppio::win32
 {
 	struct basic_overlapped : OVERLAPPED
 	{

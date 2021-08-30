@@ -1,8 +1,7 @@
 #include "iocp.h"
-#include "../async_tcp_socket.h"
 #include "basic_overlapped.h"
 
-namespace win32
+namespace cppio::win32
 {
 	iocp::iocp()
 	{
@@ -14,7 +13,7 @@ namespace win32
 		CloseHandle(m_handle);
 	}
 	
-	void iocp::run(const std::chrono::nanoseconds& wait_time)
+	void iocp::run(const std::chrono::nanoseconds& wait_time) noexcept
 	{
 		DWORD bytes_transferred = 0;
 		ULONG_PTR completion_key = 0;
@@ -36,12 +35,13 @@ namespace win32
 		}
 	}
 
-	void iocp::notify_one()
+	bool iocp::add(handle_t handle) noexcept
+	{
+		return CreateIoCompletionPort((HANDLE)handle, m_handle, 0, 0) != INVALID_HANDLE_VALUE;
+	}
+
+	void iocp::notify_one() noexcept
 	{
 		PostQueuedCompletionStatus(m_handle, 0, 0, nullptr);
-	}
-	void* iocp::get_handle() const
-	{
-		return m_handle;
 	}
 }

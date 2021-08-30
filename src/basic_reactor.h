@@ -6,46 +6,56 @@
 
 #include "timer_pool.h"
 
-struct basic_task;
-
-struct abstract_reactor
+namespace cppio
 {
-    void add(std::shared_ptr<basic_task> p_task);
-    void schedule(basic_task* p_task);
-    void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
+    struct basic_task;
 
-protected:
+    template<class T>
+    struct task;
 
-    std::mutex m_lock;
-    std::list<basic_task*> m_tasks;
-    std::unordered_set<std::shared_ptr<basic_task>> m_active_tasks;
-    timer_pool m_timers;
-};
+    struct abstract_reactor
+    {
+        template<class T>
+        auto spawn(task<T> p_task);
 
-template<class T>
-struct basic_reactor : abstract_reactor
-{
-    basic_reactor(size_t worker_count = 1);
-    ~basic_reactor();
+        void add(std::shared_ptr<basic_task> p_task);
+        
+        void schedule(basic_task* p_task);
+        void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
 
-    void run();
-    void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
+    protected:
 
-    static basic_task* get_current_task();
-    static basic_reactor* get_current();
-    T& get_completion_port() { return m_completion_object; }
+        std::mutex m_lock;
+        std::list<basic_task*> m_tasks;
+        std::unordered_set<std::shared_ptr<basic_task>> m_active_tasks;
+        timer_pool m_timers;
+    };
 
-private:
+    template<class T>
+    struct basic_reactor : abstract_reactor
+    {
+        basic_reactor(size_t worker_count = 1);
+        ~basic_reactor();
 
-    void process_tasks();
+        void run();
+        void start_timer(std::chrono::nanoseconds delay, basic_task* p_task);
 
-    T m_completion_object;
-    std::atomic<bool> m_running;
-    std::vector<std::jthread> m_runners;
+        static basic_task* get_current_task();
+        static basic_reactor* get_current();
+        T& get_completion_port() { return m_completion_object; }
 
-    inline static thread_local basic_reactor* s_current_reactor;
-    inline static thread_local basic_task* s_current_task;
-};
+    private:
+
+        void process_tasks();
+
+        T m_completion_object;
+        std::atomic<bool> m_running;
+        std::vector<std::jthread> m_runners;
+
+        inline static thread_local basic_reactor* s_current_reactor;
+        inline static thread_local basic_task* s_current_task;
+    };
+}
 
 #define BASIC_REACTOR_INL_DO
 #include "basic_reactor.inl"
