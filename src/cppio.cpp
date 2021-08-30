@@ -18,6 +18,8 @@ namespace cppio
 
 	reactor* get() noexcept
 	{
+		assert(s_reactor);
+
 		return s_reactor.get();
 	}
 

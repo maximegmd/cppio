@@ -28,8 +28,6 @@ namespace cppio
         using promise_type = final_task_promise<T>;
         using handle_type = std::coroutine_handle<promise_type>;
 
-        mutable handle_type m_handle;
-
         task(handle_type handle)
             : m_handle(handle)
         {
@@ -85,6 +83,8 @@ namespace cppio
         }
 
     private:
+
+        mutable handle_type m_handle;
 
         struct task_promise : promise_base
         {

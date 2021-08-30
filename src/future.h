@@ -20,22 +20,6 @@ namespace cppio
     };
 }
 
-#include "task.h"
-
-namespace cppio
-{
-    template<class T>
-    T future<T>::get() noexcept
-    {
-        if (!m_task)
-            return {};
-
-        m_task->wait();
-
-        auto res = std::move(m_task->await_resume());
-
-        m_task = nullptr;
-
-        return res;
-    }
-}
+#define BASIC_FUTURE_INL_DO
+#include "future.inl"
+#undef BASIC_FUTURE_INL_DO

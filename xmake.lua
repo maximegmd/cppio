@@ -7,7 +7,7 @@ set_arch("x64")
 target("cppio")
     set_kind("static")
     add_files("src/**.cpp")
-    add_headerfiles("src/**.h")
+    add_headerfiles("src/**.h", "src/**.inl")
     add_includedirs("src/", {public = true})
     add_syslinks("ws2_32", "Mswsock")
 
