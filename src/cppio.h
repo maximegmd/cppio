@@ -4,7 +4,7 @@
 
 namespace cppio
 {
-	void initialize(size_t worker_count) noexcept;
+	[[nodiscard]] bool initialize(size_t worker_count) noexcept;
 
 	reactor* get() noexcept;
 

@@ -80,7 +80,8 @@ namespace
 
 int main()
 {
-    cppio::initialize(16);
+    if (!cppio::initialize(16))
+        return -1;
 
     auto result = cppio::spawn(tcp_test());
     auto wait = result.get();

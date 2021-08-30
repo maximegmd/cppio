@@ -65,13 +65,6 @@ namespace cppio
             return true;
         }
 
-        bool await_suspend(std::coroutine_handle<promise_type> handle)
-        {
-            handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());
-            m_handle.promise().m_outer_handler = std::coroutine_handle<promise_base>::from_address(handle.address());
-            return true;
-        }
-
         std::coroutine_handle<promise_base> get_promise_base() override
         {
             return std::coroutine_handle<promise_base>::from_address(m_handle.address());
@@ -166,16 +159,9 @@ namespace cppio
             return true;
         }
 
-        bool await_suspend(std::coroutine_handle<promise_type> handle)
+        void await_resume()
         {
-            handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());
-            m_handle.promise().m_outer_handler = std::coroutine_handle<promise_base>::from_address(handle.address());
-            return true;
-        }
-
-        auto await_resume()
-        {
-            return 0;
+            return;
         }
 
         std::coroutine_handle<promise_base> get_promise_base() override

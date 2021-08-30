@@ -1,20 +1,19 @@
 #include "cppio.h"
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#endif
-
 namespace cppio
 {
 	static std::unique_ptr<reactor> s_reactor{};
 
-	void initialize(size_t worker_count) noexcept
+	bool initialize(size_t worker_count) noexcept
 	{
-#if _WIN32
+#if CPPIO_PLATFORM_WIN
 		WSADATA wsaData;
-		WSAStartup(MAKEWORD(2, 0), &wsaData);
+		if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
+			return false;
 #endif
 		s_reactor = std::make_unique<reactor>(worker_count);
+
+		return true;
 	}
 
 	reactor* get() noexcept
