@@ -33,7 +33,9 @@ Connection: Closed
         auto read = co_await socket.read(data, 1024);
         data[read] = 0;
 
-        std::string content = "<html><h1>Hello!</h1></html>";
+        static std::atomic<int> counter = 0;
+
+        std::string content = "<html><h1>Hi " + std::to_string(++counter) + "!</h1></html>";
         auto response = co_await build_response(content);
 
         auto sent = co_await socket.write(response.c_str(), response.size());
