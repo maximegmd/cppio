@@ -24,5 +24,8 @@ namespace cppio
 		friend struct tcp_listener;
 
 		socket_t m_socket;
+#if CPPIO_PLATFORM_POSIX
+		socket_t m_out_socket;
+#endif
 	};
 }

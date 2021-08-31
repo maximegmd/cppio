@@ -1,5 +1,6 @@
 #include "timer_pool.h"
 #include "task.h"
+#include <atomic>
 
 namespace cppio
 {

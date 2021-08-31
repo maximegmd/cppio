@@ -6,6 +6,8 @@
 #include <thread>
 #include <cassert>
 #include <concepts>
+#include <memory>
+
 
 namespace cppio
 {

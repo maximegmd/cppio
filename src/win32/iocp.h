@@ -18,7 +18,6 @@ namespace cppio::win32
 
 	private:
 
-		std::mutex m_lock;
 		handle_t m_handle;
 	};
 }

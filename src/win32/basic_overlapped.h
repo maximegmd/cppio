@@ -1,8 +1,9 @@
 #pragma once
 
-#include <chrono>
-#include <mutex>
-#include <winsock2.h>
+#include "../platform.h"
+
+#if CPPIO_PLATFORM_WIN
+
 #include "../reactor.h"
 
 namespace cppio::win32
@@ -22,3 +23,5 @@ namespace cppio::win32
 		std::shared_ptr<basic_task> task{ reactor::get_current_task()->shared_from_this() };
 	};
 }
+
+#endif

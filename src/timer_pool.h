@@ -1,9 +1,9 @@
 #pragma once
 
-#include <list>
 #include <mutex>
-#include <unordered_set>
 #include <set>
+#include <memory>
+#include <atomic>
 
 namespace cppio
 {
