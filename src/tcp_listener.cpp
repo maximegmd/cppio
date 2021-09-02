@@ -1,9 +1,9 @@
-#include "tcp_listener.h"
-#include "platform.h"
+#include "tcp_listener.hpp"
+#include "platform.hpp"
 
 #include <algorithm>
 
-#include "reactor.h"
+#include "reactor.hpp"
 
 namespace cppio
 {

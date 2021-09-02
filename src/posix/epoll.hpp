@@ -2,8 +2,8 @@
 
 #include <chrono>
 
-#include "defines.h"
-#include "basic_overlapped.h"
+#include "defines.hpp"
+#include "basic_overlapped.hpp"
 
 namespace cppio::posix
 {

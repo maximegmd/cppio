@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tcp_socket.h"
-#include "task.h"
+#include "tcp_socket.hpp"
+#include "task.hpp"
 
 namespace cppio
 {

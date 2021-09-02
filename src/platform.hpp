@@ -8,7 +8,7 @@
 #define CPPIO_PLATFORM_POSIX 1
 #endif
 
-#include "error_code.h"
+#include "error_code.hpp"
 
 #include "outcome.hpp"
 
@@ -19,7 +19,7 @@ namespace outcome = OUTCOME_V2_NAMESPACE;
 #include <WinSock2.h>
 #include <mswsock.h>
 
-#include "win32/defines.h"
+#include "win32/defines.hpp"
 namespace cppio
 {
 	using win32::handle_t;
@@ -38,7 +38,7 @@ namespace cppio
 #include <netinet/tcp.h>
 #include <fcntl.h>
 
-#include "posix/defines.h"
+#include "posix/defines.hpp"
 
 namespace cppio
 {

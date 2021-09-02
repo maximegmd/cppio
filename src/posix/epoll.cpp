@@ -1,6 +1,7 @@
-#include "../platform.h"
-#include "epoll.h"
-#include "../task.h"
+#include "../platform.hpp"
+#include "../task.hpp"
+
+#include "epoll.hpp"
 
 namespace cppio::posix
 {

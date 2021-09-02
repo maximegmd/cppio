@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../platform.h"
+#include "../platform.hpp"
 
 #if CPPIO_PLATFORM_WIN
 
-#include "../reactor.h"
+#include "../reactor.hpp"
 
 namespace cppio::win32
 {

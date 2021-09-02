@@ -6,7 +6,7 @@
 #include <vector>
 #include <thread>
 
-#include "timer_pool.h"
+#include "timer_pool.hpp"
 
 namespace cppio
 {

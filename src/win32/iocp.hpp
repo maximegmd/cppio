@@ -3,7 +3,7 @@
 #include <chrono>
 #include <mutex>
 
-#include "defines.h"
+#include "defines.hpp"
 
 namespace cppio::win32
 {

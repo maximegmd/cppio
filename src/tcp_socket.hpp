@@ -1,7 +1,7 @@
 #pragma once
 
-#include "platform.h"
-#include "task.h"
+#include "platform.hpp"
+#include "task.hpp"
 
 namespace cppio
 {

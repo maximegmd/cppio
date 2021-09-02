@@ -8,9 +8,9 @@
 #include <concepts>
 #include <future>
 
-#include "basic_task.h"
-#include "future.h"
-#include "meta.h"
+#include "basic_task.hpp"
+#include "future.hpp"
+#include "meta.hpp"
 
 namespace cppio
 {

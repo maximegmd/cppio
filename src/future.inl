@@ -2,7 +2,7 @@
 #error Do not include this file directly!
 #endif
 
-#include "task.h"
+#include "task.hpp"
 
 namespace cppio
 {

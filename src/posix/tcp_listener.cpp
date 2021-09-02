@@ -1,8 +1,8 @@
-#include "../platform.h"
-#include "../tcp_listener.h"
-#include "../reactor.h"
+#include "../platform.hpp"
+#include "../tcp_listener.hpp"
+#include "../reactor.hpp"
 
-#include "basic_overlapped.h"
+#include "basic_overlapped.hpp"
 
 namespace cppio
 {

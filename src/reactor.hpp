@@ -1,13 +1,13 @@
 #pragma once
 
-#include "basic_reactor.h"
+#include "basic_reactor.hpp"
 
-#include "platform.h"
+#include "platform.hpp"
 
 #if CPPIO_PLATFORM_WIN
-#include "win32/iocp.h"
+#include "win32/iocp.hpp"
 #elif CPPIO_PLATFORM_POSIX
-#include "posix/epoll.h"
+#include "posix/epoll.hpp"
 #endif
 
 namespace cppio

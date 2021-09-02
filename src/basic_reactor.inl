@@ -2,8 +2,8 @@
 #error Do not include this file directly!
 #endif
 
-#include "task.h"
-#include "basic_reactor.h"
+#include "task.hpp"
+#include "basic_reactor.hpp"
 
 namespace cppio
 {
