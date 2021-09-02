@@ -1,7 +1,7 @@
-#include "basic_reactor.hpp"
+#include "abstract_reactor.hpp"
 #include "task.hpp"
 
-namespace cppio
+namespace cppio::impl
 {
     void abstract_reactor::add(std::shared_ptr<basic_task> p_task)
     {

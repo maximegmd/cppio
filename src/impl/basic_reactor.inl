@@ -5,16 +5,8 @@
 #include "task.hpp"
 #include "basic_reactor.hpp"
 
-namespace cppio
+namespace cppio::impl
 {
-    template<class T>
-    auto abstract_reactor::spawn(task<T> a_task)
-    {
-        auto p_task = std::make_shared<task<T>>(std::move(a_task));
-        add(p_task);
-        return p_task->get_future();
-    }
-
     template<class T>
     basic_reactor<T>::basic_reactor(size_t worker_count)
         : m_running{ true }
