@@ -8,6 +8,13 @@
 #define CPPIO_PLATFORM_POSIX 1
 #endif
 
+#include "error_code.h"
+
+#include "outcome.hpp"
+
+namespace outcome = OUTCOME_V2_NAMESPACE;
+
+
 #if CPPIO_PLATFORM_WIN
 #include <WinSock2.h>
 #include <mswsock.h>

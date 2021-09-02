@@ -3,12 +3,12 @@
 
 namespace cppio
 {
-    	std::optional<tcp_listener> tcp_listener::create(uint16_t port) noexcept
+    outcome::result<tcp_listener> tcp_listener::create(uint16_t port) noexcept
 	{
 		auto sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 		if (sock == SOCKET_ERROR)
 		{
-			return std::nullopt;
+			return socket_error_code::SystemError;
 		}
 
 		sockaddr_in addr;
@@ -18,7 +18,7 @@ namespace cppio
 
 		if (bind(sock, (const sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
 		{
-			return std::nullopt;
+			return socket_error_code::SystemError;
 		}
 
 		listen(sock, 100);
@@ -26,7 +26,7 @@ namespace cppio
 		return std::move(tcp_listener(sock));
 	}
 
-	task<std::optional<tcp_socket>> tcp_listener::accept()
+	task<outcome::result<tcp_socket>> tcp_listener::accept()
 	{
 		win32::basic_overlapped overlapped(win32::basic_overlapped::Type::kTcpSocket);
 
@@ -35,7 +35,7 @@ namespace cppio
 		// Oops we didn't get a socket...
 		if (out.m_socket == SOCKET_ERROR)
 		{
-			co_return std::nullopt;
+			co_return socket_error_code::SystemError;
 		}
 
 		char addr_buff[1024];
@@ -50,7 +50,10 @@ namespace cppio
 			// Lucky us we had a connection ready, don't need to wait (we don't set the task's wait state because it's dead on return anyway)
 			if (result == TRUE)
 			{
-				co_return std::move(out);
+				// Sadly it will still proc an event so we must wait...
+				co_await std::suspend_always{};
+
+				co_return outcome::success(std::move(out));
 			}
 
 			auto err = WSAGetLastError();
@@ -59,7 +62,7 @@ namespace cppio
 			{
 				co_await std::suspend_always{};
 				if (overlapped.success)
-					co_return std::move(out);
+					co_return outcome::success(std::move(out));
 			}
 			// If the error is not a client side reset, we abort
 			else if (err != WSAECONNRESET)
@@ -68,6 +71,6 @@ namespace cppio
 			}
 		}
 
-		co_return std::nullopt;
+		co_return socket_error_code::SystemError;
 	}
 }

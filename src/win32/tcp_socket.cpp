@@ -6,7 +6,7 @@
 
 namespace cppio
 {
-	task<size_t> tcp_socket::read(void* p_buffer, size_t size) noexcept
+	task<outcome::result<size_t>> tcp_socket::read(void* p_buffer, size_t size) noexcept
 	{
 		WSABUF wsa_buf;
 		wsa_buf.len = size;
@@ -22,7 +22,7 @@ namespace cppio
 		{
 			if (WSAGetLastError() != WSA_IO_PENDING) 
 			{		
-				co_return 0;
+				co_return cppio::socket_error_code::Closed;
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace cppio
 		co_return 0;
 	}
 
-	task<size_t> tcp_socket::write(const void* p_buffer, size_t size) noexcept
+	task<outcome::result<size_t>> tcp_socket::write(const void* p_buffer, size_t size) noexcept
 	{
 		WSABUF wsa_buf;
 		wsa_buf.len = size;
@@ -54,7 +54,7 @@ namespace cppio
 		{
 			if (WSAGetLastError() != WSA_IO_PENDING)
 			{
-				co_return 0;
+				co_return cppio::socket_error_code::Closed;
 			}
 		}
 

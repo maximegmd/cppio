@@ -33,7 +33,11 @@ Connection: Closed
     {
         char data[1025];
         // Very simple read, we try to get at most 1024 bytes
-        auto read = co_await connection.read(data, 1024);
+        auto read_res = co_await connection.read(data, 1024);
+        if(!read_res)
+            co_return;
+
+        auto read = read_res.value();
         data[read] = 0;
 
         static std::atomic<int> counter = 0;
@@ -50,9 +54,11 @@ Connection: Closed
     task<bool> http_test()
     {
         // Try to listen on port 12345.
-        auto listener = cppio::tcp_listener::create(12345);
-        if (!listener)
+        auto listener_result = cppio::tcp_listener::create(12345);
+        if (!listener_result)
             co_return false;
+
+        auto listener = std::move(listener_result.value());
 
         // Serve 5 requests then stop.
         for(int i = 0; i < 5; ++i)
@@ -60,7 +66,7 @@ Connection: Closed
             // Wait for a connection, this is blocking in the coroutine but the coroutine 
             // itself will be paused until a connection is accepted, yielding execution
             // to other coroutines, if any.
-            auto new_connection = co_await listener->accept();
+            auto new_connection = co_await listener.accept();
 
             if (new_connection)
             {
@@ -69,7 +75,7 @@ Connection: Closed
                 // We spawn another task, we don't want to block incoming connections, if we were good citizens
                 // we could obtain the future returned here and wait for it to return before returning ourself
                 // but cppio::wait_for_all() in main() will take care of waiting for everything to complete.
-                cppio::spawn(http_hello(std::move(*new_connection)));
+                cppio::spawn(http_hello(std::move(new_connection.value())));
             }
         }
 

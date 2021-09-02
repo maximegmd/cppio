@@ -9,6 +9,7 @@ target("cppio")
     add_files("src/*.cpp")
     add_headerfiles("src/*.h", "src/*.inl")
     add_includedirs("src/", {public = true})
+    add_includedirs("vendor/outcome/single-header", {public = true})
 
     if is_plat("windows") then
         add_files("src/win32/*.cpp")

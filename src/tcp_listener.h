@@ -3,8 +3,6 @@
 #include "tcp_socket.h"
 #include "task.h"
 
-#include <optional>
-
 namespace cppio
 {
 	struct tcp_listener : tcp_socket
@@ -15,8 +13,8 @@ namespace cppio
 		tcp_listener& operator=(tcp_listener&&) = default;
 		tcp_listener(socket_t socket);
 
-		static std::optional<tcp_listener> create(uint16_t port) noexcept;
+		static outcome::result<tcp_listener> create(uint16_t port) noexcept;
 
-		task<std::optional<tcp_socket>> accept();
+		task<outcome::result<tcp_socket>> accept();
 	};
 }
