@@ -1,8 +1,9 @@
-#include "task.hpp"
-#include "sleep.hpp"
-#include "tcp_socket.hpp"
-#include "tcp_listener.hpp"
-#include "cppio.hpp"
+#include <cppio/task.hpp>
+#include <cppio/sleep.hpp>
+#include <cppio/network/tcp_socket.hpp>
+#include <cppio/network/endpoint.hpp>
+#include <cppio/network/tcp_listener.hpp>
+#include <cppio/cppio.hpp>
 #include <iostream>
 
 using cppio::task;
@@ -29,7 +30,7 @@ Connection: Closed
         co_return std::move(response);
     }
 
-    task<> http_hello(cppio::tcp_socket connection)
+    task<> http_hello(cppio::network::tcp_socket connection)
     {
         char data[1025];
         // Very simple read, we try to get at most 1024 bytes
@@ -54,7 +55,7 @@ Connection: Closed
     task<bool> http_test()
     {
         // Try to listen on port 12345.
-        auto listener_result = cppio::tcp_listener::create(12345);
+        auto listener_result = cppio::network::tcp_listener::create(12345);
         if (!listener_result)
             co_return false;
 
@@ -70,7 +71,10 @@ Connection: Closed
 
             if (new_connection)
             {
-                std::printf("New TCP connection!\n");
+                // Unwrap directly there is no reason for this to fail here
+                auto endpoint = new_connection.value().remote_endpoint().value();
+
+                std::printf("New TCP connection from %s\n", endpoint.to_string().c_str());
 
                 // We spawn another task, we don't want to block incoming connections, if we were good citizens
                 // we could obtain the future returned here and wait for it to return before returning ourself
@@ -78,6 +82,37 @@ Connection: Closed
                 cppio::spawn(http_hello(std::move(new_connection.value())));
             }
         }
+
+        co_return true;
+    }
+
+    task<bool> client_test()
+    {
+        co_await cppio::sleep{ std::chrono::milliseconds(500) };
+        auto endpoint = cppio::network::endpoint::parse("127.0.0.1:12345");
+        if (!endpoint)
+            co_return false;
+
+        auto sock_result = co_await cppio::network::tcp_socket::connect(endpoint.value());
+        if (!sock_result)
+            co_return false;
+
+        auto sock = std::move(sock_result.value());
+        auto sent_result = co_await sock.write("test", 4);
+
+
+        char buff[1025];
+        auto recv_result = co_await sock.read(buff, 1024);
+
+        std::printf("Recv!\n");
+
+        if (!recv_result)
+            co_return false;
+
+        std::printf("Recv2!\n");
+
+        buff[recv_result.value()] = 0;
+        std::printf("%s\n", buff);
 
         co_return true;
     }
@@ -92,6 +127,8 @@ int main()
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
     // note that you can spawn multiple coroutines from anywhere without waiting.
     cppio::spawn(http_test());
+
+    cppio::spawn(client_test());
 
     // Make sure all tasks complete, this is a work stealing wait, it will process tasks.
     cppio::wait_for_all();
