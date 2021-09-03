@@ -100,16 +100,11 @@ Connection: Closed
         auto sock = std::move(sock_result.value());
         auto sent_result = co_await sock.write("test", 4);
 
-
         char buff[1025];
         auto recv_result = co_await sock.read(buff, 1024);
 
-        std::printf("Recv!\n");
-
         if (!recv_result)
             co_return false;
-
-        std::printf("Recv2!\n");
 
         buff[recv_result.value()] = 0;
         std::printf("%s\n", buff);
@@ -128,6 +123,7 @@ int main()
     // note that you can spawn multiple coroutines from anywhere without waiting.
     cppio::spawn(http_test());
 
+    // Run a client test
     cppio::spawn(client_test());
 
     // Make sure all tasks complete, this is a work stealing wait, it will process tasks.
