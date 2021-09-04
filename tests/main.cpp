@@ -114,7 +114,7 @@ Connection: Closed
 
     task<bool> udp_server()
     {
-        auto endpoint = cppio::network::endpoint::parse("0.0.0.0:12346");
+        auto endpoint = cppio::network::endpoint::parse("0.0.0.0:12345");
         if (!endpoint)
             co_return false;
 
@@ -132,7 +132,7 @@ Connection: Closed
             if (read_res)
             {
                 data[read_res.value()] = 0;
-                std::printf("UDP read: %s\n", data);
+                std::printf("UDP read from %s: %s\n", from.to_string().c_str(), data);
             }
         }
     }
@@ -143,7 +143,7 @@ Connection: Closed
         if (!endpoint)
             co_return false;
 
-        auto to_endpoint = cppio::network::endpoint::parse("127.0.0.1:12346");
+        auto to_endpoint = cppio::network::endpoint::parse("127.0.0.1:12345");
         if (!to_endpoint)
             co_return false;
 
