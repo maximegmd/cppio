@@ -8,7 +8,7 @@ namespace cppio::network
 {
     outcome::result<tcp_listener> tcp_listener::create(const endpoint& local_endpoint) noexcept
 	{
-		auto sock = socket(AF_INET, SOCK_STREAM, 0);
+		auto sock = socket(local_endpoint.type(), SOCK_STREAM, IPPROTO_TCP);
 		if (sock == socket_error)
 		{
 			return network_error_code::SystemError;

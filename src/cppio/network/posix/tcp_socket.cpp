@@ -1,16 +1,14 @@
 #include <cppio/platform.hpp>
-#include <cppio/network/tcp_socket.hpp>
 #include <cppio/reactor.hpp>
+#include <cppio/network/tcp_socket.hpp>
 #include <cppio/impl/posix/basic_overlapped.hpp>
 
-
-#include <algorithm>
 
 namespace cppio::network
 {
     task<outcome::result<tcp_socket>> tcp_socket::connect(const network::endpoint& endpoint) noexcept
 	{
-		auto sock = socket(endpoint.type(), SOCK_STREAM, 0);
+		auto sock = socket(endpoint.type(), SOCK_STREAM, IPPROTO_TCP);
 		if (sock == socket_error)
 			co_return network_error_code::SystemError;
 

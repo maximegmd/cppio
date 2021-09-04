@@ -13,7 +13,7 @@ namespace cppio::network
 		sockaddr_storage addr;
 		local_endpoint.fill(addr);
 
-		if(::bind(socket, (SOCKADDR*)&addr, sizeof(addr)) != 0)
+		if (::bind(socket, (SOCKADDR*)&addr, sizeof(addr)) != 0)
 			return network_error_code::Closed;
 
 		return udp_socket{ socket };

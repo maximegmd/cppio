@@ -114,7 +114,7 @@ Connection: Closed
 
     task<bool> udp_server()
     {
-        auto endpoint = cppio::network::endpoint::parse("0.0.0.0:12345");
+        auto endpoint = cppio::network::endpoint::parse("[::]:12346");
         if (!endpoint)
             co_return false;
 
@@ -139,17 +139,26 @@ Connection: Closed
 
     task<bool> udp_client()
     {
-        auto endpoint = cppio::network::endpoint::parse("0.0.0.0");
+        auto endpoint = cppio::network::endpoint::parse("[::]");
         if (!endpoint)
+        {
+            std::printf("udp_client - endpoint failure\n");
             co_return false;
+        }
 
-        auto to_endpoint = cppio::network::endpoint::parse("127.0.0.1:12345");
+        auto to_endpoint = cppio::network::endpoint::parse("[::1]:12346");
         if (!to_endpoint)
+        {
+            std::printf("udp_client - to_endpoint failure\n");
             co_return false;
+        }
 
         auto client_res = cppio::network::udp_socket::bind(endpoint.value());
         if (!client_res)
+        {
+            std::printf("udp_client - client_res failure\n");
             co_return false;
+        }
 
         auto client = std::move(client_res.value());
 
@@ -176,7 +185,10 @@ int main()
     // Run a client test
     cppio::spawn(client_test());
 
+    // Host a udp server
     cppio::spawn(udp_server());
+
+    // And run a simple udp client that sends a message every second
     cppio::spawn(udp_client());
 
     // Make sure all tasks complete, this is a work stealing wait, it will process tasks.

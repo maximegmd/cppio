@@ -7,7 +7,7 @@ namespace cppio::network
 {
     outcome::result<udp_socket> udp_socket::bind(const endpoint& local_endpoint) noexcept
 	{
-		auto sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		auto sock = socket(local_endpoint.type(), SOCK_DGRAM, IPPROTO_UDP);
 		if (sock == socket_error)
 		{
 			return network_error_code::SystemError;
@@ -46,7 +46,9 @@ namespace cppio::network
 		local_endpoint.fill(addr);
 
 		if(::bind(sock, (sockaddr*)&addr, sizeof(addr)) != 0)
+        {
 			return network_error_code::Closed;
+        }
 
 		return udp_socket{ sock };
 	}

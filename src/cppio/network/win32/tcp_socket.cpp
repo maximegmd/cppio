@@ -5,7 +5,7 @@ namespace cppio::network
 {
 	task<outcome::result<tcp_socket>> tcp_socket::connect(const network::endpoint& endpoint) noexcept
 	{
-		auto out = tcp_socket{ WSASocketA(endpoint.type(), SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED) };
+		auto out = tcp_socket{ WSASocketA(endpoint.type(), SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED) };
 		if (out.m_socket == socket_invalid_handle)
 			co_return network_error_code::SystemError;
 

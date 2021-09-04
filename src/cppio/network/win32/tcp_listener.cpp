@@ -5,7 +5,7 @@ namespace cppio::network
 {
     outcome::result<tcp_listener> tcp_listener::create(const endpoint& local_endpoint) noexcept
 	{
-		auto sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+		auto sock = WSASocket(local_endpoint.type(), SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 		if (sock == SOCKET_ERROR)
 		{
 			return network_error_code::SystemError;

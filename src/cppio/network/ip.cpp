@@ -39,7 +39,20 @@ namespace cppio::network::ip
 
 	outcome::result<v6> v6::parse(const std::string& address)
 	{
+		if(address.size() < 2)
+			return network_error_code::BadFormat;
+
 		in6_addr addr;
+
+		if (address[0] == '[' && address[address.size() - 1] == ']')
+		{
+			std::string address_cut = address.substr(1, address.size() - 2);
+			if (inet_pton(AF_INET6, address_cut.c_str(), &addr) == 1)
+			{
+				return v6{ addr.s6_addr };
+			}
+		}
+
 		if (inet_pton(AF_INET6, address.c_str(), &addr) == 1)
 		{
 			return v6{ addr.s6_addr };
@@ -73,14 +86,48 @@ namespace cppio::network::ip
 	{
 		std::ostringstream oss;
 
-		oss << "[" << std::hex << m_address.word[0] << ":"
-			<< m_address.word[1] << ":"
-			<< m_address.word[2] << ":"
-			<< m_address.word[3] << ":"
-			<< m_address.word[4] << ":"
-			<< m_address.word[5] << ":"
-			<< m_address.word[6] << ":"
-			<< m_address.word[7] << "]";
+		oss << "[" << std::hex;
+
+		auto zero_length = 0;
+		auto zero_index = 0;
+
+		for (auto i = 0; i < std::size(m_address.word); ++i)
+		{
+			if (m_address.word[i] == 0)
+			{
+				auto start = i;
+
+				for (; i < std::size(m_address.word); ++i)
+					if (m_address.word[i] != 0)
+						break;
+
+				if ((i - start) > zero_length)
+				{
+					zero_length = (i - start);
+					zero_index = start;
+				}
+			}
+		}
+
+		for (auto i = 0; i < std::size(m_address.word);)
+		{
+			if (i == zero_index && zero_length > 1)
+			{
+				oss << "::";
+				i += zero_length;
+			}
+			else
+			{
+				oss << m_address.word[i];
+
+				if (i < 7 && ((i + 1) != zero_index || zero_length <= 1))
+					oss << ":";
+
+				i++;
+			}
+		}
+
+		oss << "]";
 
 		return oss.str();
 	}

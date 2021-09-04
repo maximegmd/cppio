@@ -10,7 +10,7 @@ namespace cppio::network
 	outcome::result<endpoint> endpoint::parse(std::string_view address) noexcept
 	{
 		auto port_separator = address.find_last_of(':');
-		if (port_separator != std::string_view::npos) 
+		if (port_separator != std::string_view::npos && address[address.size() - 1] != ']')
 		{
 			auto port = std::stoul(address.substr(port_separator + 1).data());
 			if (port <= std::numeric_limits<uint16_t>::max())
@@ -113,6 +113,7 @@ namespace cppio::network
 			{ 
 				ip.fill(storage); 
 				((sockaddr_in6*)&storage)->sin6_port = htons(m_port);
+				((sockaddr_in6*)&storage)->sin6_scope_id = 0;
 			}
 		), m_addr);
 	}
