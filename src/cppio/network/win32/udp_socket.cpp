@@ -49,7 +49,10 @@ namespace cppio::network
 		co_await std::suspend_always{};
 
 		if (overlapped.success)
+		{
+			remote_endpoint = endpoint{ from };
 			co_return std::move(overlapped.bytes_transferred);
+		}
 
 		co_return 0;
 	}

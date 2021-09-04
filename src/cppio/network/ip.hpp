@@ -29,7 +29,7 @@ namespace cppio::network::ip
 		static outcome::result<v6> parse(const std::string& address);
 
 		v6() = default;
-		v6(uint8_t address[16]);
+		v6(const uint8_t address[16]);
 		v6(const v6&) = default;
 		v6(v6&&) = default;
 		v6& operator=(const v6&) = default;

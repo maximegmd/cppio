@@ -50,6 +50,22 @@ namespace cppio::network
 
 	}
 
+	endpoint::endpoint(const sockaddr_storage& storage) noexcept
+	{
+		if (storage.ss_family == AF_INET)
+		{
+			auto* addr = (const sockaddr_in*)&storage;
+			m_addr = ip::v4{ ntohl(addr->sin_addr.s_addr) };
+			m_port = addr->sin_port;
+		}
+		else
+		{
+			auto* addr = (const sockaddr_in6*)&storage;
+			m_addr = ip::v6( addr->sin6_addr.s6_addr );
+			m_port = addr->sin6_port;
+		}
+	}
+
 	endpoint::endpoint(const ip::v4& rhs, uint16_t port) noexcept
 		: m_addr(rhs)
 		, m_port(port)

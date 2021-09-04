@@ -9,6 +9,7 @@ namespace cppio::network
 	{
 		static outcome::result<endpoint> parse(std::string_view address) noexcept;
 
+		endpoint(const sockaddr_storage& storage) noexcept;
 		endpoint(const ip::v4& rhs, uint16_t port) noexcept;
 		endpoint(const ip::v6& rhs, uint16_t port) noexcept;
 

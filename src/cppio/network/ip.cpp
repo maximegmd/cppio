@@ -48,11 +48,11 @@ namespace cppio::network::ip
 		return network_error_code::BadFormat;
 	}
 
-	v6::v6(uint8_t address[16])
+	v6::v6(const uint8_t address[16])
 	{
 		for (auto i = 0; i < std::size(m_address.word); ++i)
 		{
-			uint16_t word = ntohs(*reinterpret_cast<uint16_t*>(address + i * 2));
+			uint16_t word = ntohs(*reinterpret_cast<const uint16_t*>(address + i * 2));
 			m_address.word[i] = word;
 		}
 	}

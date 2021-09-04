@@ -1,8 +1,5 @@
 #include <cppio/network/tcp_socket.hpp>
-#include <cppio/reactor.hpp>
 #include <cppio/impl/win32/basic_overlapped.hpp>
-
-#include <algorithm>
 
 namespace cppio::network
 {
