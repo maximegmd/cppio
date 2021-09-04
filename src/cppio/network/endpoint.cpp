@@ -56,13 +56,13 @@ namespace cppio::network
 		{
 			auto* addr = (const sockaddr_in*)&storage;
 			m_addr = ip::v4{ ntohl(addr->sin_addr.s_addr) };
-			m_port = addr->sin_port;
+			m_port = ntohs(addr->sin_port);
 		}
 		else
 		{
 			auto* addr = (const sockaddr_in6*)&storage;
 			m_addr = ip::v6( addr->sin6_addr.s6_addr );
-			m_port = addr->sin6_port;
+			m_port = ntohs(addr->sin6_port);
 		}
 	}
 

@@ -16,6 +16,10 @@ namespace cppio::network
 		if (::bind(socket, (SOCKADDR*)&addr, sizeof(addr)) != 0)
 			return network_error_code::Closed;
 
+		BOOL new_behavior = FALSE;
+		DWORD dw_bytes_returned = 0;
+		WSAIoctl(socket, SIO_UDP_CONNRESET, &new_behavior, sizeof(new_behavior), NULL, 0, &dw_bytes_returned, NULL, NULL);
+
 		return udp_socket{ socket };
 	}
 
@@ -36,7 +40,8 @@ namespace cppio::network
 
 		if (WSARecvFrom(m_socket, &wsa_buf, 1, &bytes_read, &flags, (sockaddr*)&from, &len, &overlapped, nullptr) == SOCKET_ERROR)
 		{
-			if (WSAGetLastError() != WSA_IO_PENDING) 
+			auto err = WSAGetLastError();
+			if (err != WSA_IO_PENDING)
 			{		
 				co_return cppio::network_error_code::Closed;
 			}

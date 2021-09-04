@@ -133,6 +133,14 @@ Connection: Closed
             {
                 data[read_res.value()] = 0;
                 std::printf("UDP read from %s: %s\n", from.to_string().c_str(), data);
+
+                const char* rdata = "bye!";
+                auto write_res = co_await server.write(from, rdata, 4);
+            }
+            else
+            {
+                std::printf("Server read failed\n");
+                co_return false;
             }
         }
     }
@@ -141,24 +149,15 @@ Connection: Closed
     {
         auto endpoint = cppio::network::endpoint::parse("[::]");
         if (!endpoint)
-        {
-            std::printf("udp_client - endpoint failure\n");
             co_return false;
-        }
 
         auto to_endpoint = cppio::network::endpoint::parse("[::1]:12346");
         if (!to_endpoint)
-        {
-            std::printf("udp_client - to_endpoint failure\n");
             co_return false;
-        }
 
         auto client_res = cppio::network::udp_socket::bind(endpoint.value());
         if (!client_res)
-        {
-            std::printf("udp_client - client_res failure\n");
             co_return false;
-        }
 
         auto client = std::move(client_res.value());
 
@@ -168,6 +167,21 @@ Connection: Closed
 
             const char* data = "hi!";
             auto write_res = co_await client.write(to_endpoint.value(), data, 3);
+
+            cppio::network::endpoint from;
+            char buf[1025];
+            auto read_res = co_await client.read(from, buf, 1024);
+
+            if (read_res)
+            {
+                buf[read_res.value()] = 0;
+                std::printf("Server replied %s\n", buf);
+            }
+            else
+            {
+                std::printf("Read from server failed\n");
+                co_return false;
+            }
         }
     }
 }
@@ -175,15 +189,15 @@ Connection: Closed
 int main()
 {
     // This must be called before any other cppio call, here we start 4 background workers.
-    if (!cppio::initialize(4))
+    if (!cppio::initialize(0))
         return -1;
 
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
     // note that you can spawn multiple coroutines from anywhere without waiting.
-    cppio::spawn(http_test());
+    //cppio::spawn(http_test());
 
     // Run a client test
-    cppio::spawn(client_test());
+    //cppio::spawn(client_test());
 
     // Host a udp server
     cppio::spawn(udp_server());

@@ -21,6 +21,7 @@ namespace cppio::network
 		outcome::result<endpoint> remote_endpoint() const noexcept;
 
 		task<outcome::result<size_t>> read(void* p_buffer, size_t size) noexcept;
+		task<outcome::result<size_t>> read_exactly(void* p_buffer, size_t size) noexcept;
 		task<outcome::result<size_t>> write(const void* p_buffer, size_t size) noexcept;
 	};
 }

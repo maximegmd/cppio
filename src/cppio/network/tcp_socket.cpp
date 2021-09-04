@@ -22,4 +22,19 @@ namespace cppio::network
 	{
 		return internal_remote_endpoint();
 	}
+
+	task<outcome::result<size_t>> tcp_socket::read_exactly(void* p_buffer, size_t size) noexcept
+	{
+		size_t total_read = 0;
+
+		while (total_read != size)
+		{
+			auto read_res = co_await read((char*)p_buffer + total_read, size - total_read);
+			if (!read_res)
+				co_return cppio::network_error_code::Closed;
+			total_read += read_res.value();
+		}
+
+		co_return 0;
+	}
 }
