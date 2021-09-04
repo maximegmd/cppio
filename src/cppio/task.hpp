@@ -4,13 +4,11 @@
 #include <coroutine>
 #include <optional>
 #include <thread>
-#include <cassert>
-#include <concepts>
 #include <future>
 
 #include <cppio/basic_task.hpp>
 #include <cppio/future.hpp>
-#include <cppio/meta.hpp>
+#include <cppio/impl/meta.hpp>
 
 namespace cppio
 {
@@ -57,7 +55,7 @@ namespace cppio
             return cppio::future(std::static_pointer_cast<task<T>>(shared_from_this()));
         }
 
-        template<meta::derived<promise_base> U>
+        template<impl::meta::derived<promise_base> U>
         bool await_suspend(std::coroutine_handle<U> handle)
         {
             handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace cppio::meta
+namespace cppio::impl::meta
 {
     template <class T, class U>
     concept derived = std::is_base_of<U, T>::value;

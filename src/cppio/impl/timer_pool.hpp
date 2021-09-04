@@ -3,11 +3,14 @@
 #include <mutex>
 #include <set>
 #include <memory>
-#include <atomic>
 
 namespace cppio
 {
 	struct basic_task;
+}
+
+namespace cppio::impl
+{
 	struct timer_pool
 	{
 		timer_pool();

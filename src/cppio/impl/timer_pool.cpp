@@ -1,9 +1,9 @@
-#include <cppio/timer_pool.hpp>
+#include <cppio/impl/timer_pool.hpp>
 #include <cppio/task.hpp>
 
 #include <atomic>
 
-namespace cppio
+namespace cppio::impl
 {
 	timer_pool::timer_pool()
 	{

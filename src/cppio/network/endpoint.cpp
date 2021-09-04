@@ -1,6 +1,6 @@
 #include <cppio/network/endpoint.hpp>
 #include <cppio/platform.hpp>
-#include <cppio/meta.hpp>
+#include <cppio/impl/meta.hpp>
 #include <limits>
 
 #undef max
@@ -58,7 +58,7 @@ namespace cppio::network
 
 	uint32_t endpoint::type() const noexcept
 	{
-		return std::visit(meta::overloaded(
+		return std::visit(impl::meta::overloaded(
 			[](const ip::v4& ip) { return AF_INET; },
 			[](const ip::v6& ip) { return AF_INET6; }
 		), m_addr);
@@ -81,7 +81,7 @@ namespace cppio::network
 
 	void endpoint::fill(sockaddr_storage& storage) const noexcept
 	{
-		std::visit(meta::overloaded(
+		std::visit(impl::meta::overloaded(
 			[this, &storage](const ip::v4& ip) 
 			{ 
 				ip.fill(storage); 
@@ -97,7 +97,7 @@ namespace cppio::network
 
 	std::string endpoint::to_string() const noexcept
 	{
-		std::string result = std::visit(meta::overloaded(
+		std::string result = std::visit(impl::meta::overloaded(
 			[](const ip::v4& ip) { return ip.to_string(); },
 			[](const ip::v6& ip) { return ip.to_string(); }
 		), m_addr);
