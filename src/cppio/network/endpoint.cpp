@@ -44,6 +44,12 @@ namespace cppio::network
 		return network_error_code::BadFormat;
 	}
 
+	endpoint::endpoint()
+		: m_port{ 0 }
+	{
+
+	}
+
 	endpoint::endpoint(const ip::v4& rhs, uint16_t port) noexcept
 		: m_addr(rhs)
 		, m_port(port)

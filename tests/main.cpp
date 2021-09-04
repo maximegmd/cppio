@@ -1,7 +1,7 @@
 #include <cppio/task.hpp>
 #include <cppio/sleep.hpp>
 #include <cppio/network/tcp_socket.hpp>
-#include <cppio/network/endpoint.hpp>
+#include <cppio/network/udp_socket.hpp>
 #include <cppio/network/tcp_listener.hpp>
 #include <cppio/cppio.hpp>
 #include <iostream>
@@ -111,6 +111,56 @@ Connection: Closed
 
         co_return true;
     }
+
+    task<bool> udp_server()
+    {
+        auto endpoint = cppio::network::endpoint::parse("0.0.0.0:12346");
+        if (!endpoint)
+            co_return false;
+
+        auto server_res = cppio::network::udp_socket::bind(endpoint.value());
+        if (!server_res)
+            co_return false;
+
+        auto server = std::move(server_res.value());
+
+        while (true)
+        {
+            cppio::network::endpoint from;
+            char data[1025];
+            auto read_res = co_await server.read(from, data, 1024);
+            if (read_res)
+            {
+                data[read_res.value()] = 0;
+                std::printf("UDP read: %s\n", data);
+            }
+        }
+    }
+
+    task<bool> udp_client()
+    {
+        auto endpoint = cppio::network::endpoint::parse("0.0.0.0");
+        if (!endpoint)
+            co_return false;
+
+        auto to_endpoint = cppio::network::endpoint::parse("127.0.0.1:12346");
+        if (!to_endpoint)
+            co_return false;
+
+        auto client_res = cppio::network::udp_socket::bind(endpoint.value());
+        if (!client_res)
+            co_return false;
+
+        auto client = std::move(client_res.value());
+
+        while (true)
+        {
+            co_await cppio::sleep(std::chrono::seconds{ 1 });
+
+            const char* data = "hi!";
+            auto write_res = co_await client.write(to_endpoint.value(), data, 3);
+        }
+    }
 }
 
 int main()
@@ -121,10 +171,13 @@ int main()
 
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
     // note that you can spawn multiple coroutines from anywhere without waiting.
-    cppio::spawn(http_test());
+    //cppio::spawn(http_test());
 
     // Run a client test
-    cppio::spawn(client_test());
+    //cppio::spawn(client_test());
+
+    cppio::spawn(udp_server());
+    cppio::spawn(udp_client());
 
     // Make sure all tasks complete, this is a work stealing wait, it will process tasks.
     cppio::wait_for_all();

@@ -5,23 +5,23 @@ namespace cppio
 {
     void basic_task::wake() noexcept
     {
-        m_waiting = false;
+        m_state = ScheduleType::kRun;
         reactor::get_current()->schedule(shared_from_this());
     }
 
     void basic_task::wait() noexcept
     {
-        m_waiting = true;
+        m_state = ScheduleType::kWait;
     }
 
     void basic_task::cancel_wait() noexcept
     {
-        m_waiting = false;
+        m_state = ScheduleType::kRun;
     }
 
     bool basic_task::is_waiting() const noexcept
     {
-        return m_waiting;
+        return m_state == ScheduleType::kWait;
     }
 
     bool basic_task::await_suspend(std::coroutine_handle<> handle)
@@ -31,25 +31,26 @@ namespace cppio
 
     basic_task::ScheduleType basic_task::one_step()
     {
-        assert(!m_waiting);
+        assert(m_state.load() != ScheduleType::kWait);
 
         auto curr = get_promise_base();
 
         while (curr)
         {
-            if (!curr.promise().m_inner_handler)
+            if (!curr.promise().m_inner_handle)
             {
-                while (!curr.done() && !m_waiting)
+                while (!curr.done() && !is_waiting())
                 {
                     curr.resume();
+
                     if (!curr.done())
                     {
-                        return m_waiting ? ScheduleType::kWait : ScheduleType::kRun;
+                        return m_state;
                     }
-                    if (curr.promise().m_outer_handler)
+                    else if (curr.promise().m_outer_handle)
                     {
-                        curr = curr.promise().m_outer_handler;
-                        curr.promise().m_inner_handler = nullptr;
+                        curr = curr.promise().m_outer_handle;
+                        curr.promise().m_inner_handle = nullptr;
                     }
                     else
                     {
@@ -58,8 +59,8 @@ namespace cppio
                 }
                 break;
             }
-            curr = curr.promise().m_inner_handler;
+            curr = curr.promise().m_inner_handle;
         }
-        return curr.done() ? ScheduleType::kDone : (m_waiting ? ScheduleType::kWait : ScheduleType::kRun);
+        return curr.done() ? ScheduleType::kDone : m_state.load();
     }
 }

@@ -50,6 +50,7 @@ namespace cppio::impl
             s_current_reactor = p_old_basic_reactor;
         }
 
+        // Forces another worker that is waiting for event to wake, that will in turn wake another worker etc...
         m_completion_object.notify_one();
     }
 

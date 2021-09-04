@@ -23,7 +23,7 @@ namespace cppio::network
 
 		std::string to_string() const noexcept;
 
-		endpoint() = delete;
+		endpoint();
 		endpoint(const endpoint&) = default;
 		endpoint(endpoint&&) = default;
 		endpoint& operator=(const endpoint&) = default;

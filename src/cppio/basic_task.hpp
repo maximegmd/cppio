@@ -32,8 +32,8 @@ namespace cppio
 
         struct promise_base
         {
-            std::coroutine_handle<promise_base> m_inner_handler{};
-            std::coroutine_handle<promise_base> m_outer_handler{};
+            std::coroutine_handle<promise_base> m_inner_handle{};
+            std::coroutine_handle<promise_base> m_outer_handle{};
 
             auto final_suspend() noexcept
             {
@@ -55,6 +55,6 @@ namespace cppio
 
     protected:
 
-        std::atomic<bool> m_waiting{ false };
+        std::atomic<ScheduleType> m_state{ ScheduleType::kRun };
     };
 }

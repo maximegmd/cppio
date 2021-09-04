@@ -97,33 +97,39 @@ namespace cppio::network
 
 	task<outcome::result<size_t>> tcp_socket::write(const void* p_buffer, size_t size) noexcept
 	{
-		WSABUF wsa_buf;
-		wsa_buf.len = size;
-		wsa_buf.buf = (CHAR*)p_buffer;
-
-		DWORD bytes_sent;
-
 		win32::basic_overlapped overlapped(win32::basic_overlapped::Type::kTcpSocket);
 
-		overlapped.task->wait();
+		size_t total = 0;
 
-		if (WSASend(m_socket, &wsa_buf, 1, &bytes_sent, 0, &overlapped, nullptr) == SOCKET_ERROR)
+		while (total < size)
 		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
+			DWORD bytes_sent = 0;
+
+			WSABUF wsa_buf;
+			wsa_buf.len = size - total;
+			wsa_buf.buf = ((CHAR*)p_buffer) + total;
+
+			if (WSASend(m_socket, &wsa_buf, 1, &bytes_sent, 0, &overlapped, nullptr) == SOCKET_ERROR)
 			{
-				co_return cppio::network_error_code::Closed;
+				if (WSAGetLastError() != WSA_IO_PENDING)
+				{
+					co_return cppio::network_error_code::Closed;
+				}
 			}
+
+			overlapped.task->wait();
+			// WSASend can return immediately, but the overlapped event will still be scheduled, if we don't suspend
+			// this coroutine will be destroyed when the overlapped event is processed and the overlapped structure
+			// will be invalid memory, so even if we get an immediate result we wait for the overlapped event to
+			// run.
+			co_await std::suspend_always{};
+
+			if (overlapped.success)
+				total += overlapped.bytes_transferred;
+			else
+				co_return cppio::network_error_code::Closed;
 		}
 
-		// WSASend can return immediately, but the overlapped event will still be scheduled, if we don't suspend
-		// this coroutine will be destroyed when the overlapped event is processed and the overlapped structure
-		// will be invalid memory, so even if we get an immediate result we wait for the overlapped event to
-		// run.
-		co_await std::suspend_always{};
-
-		if (overlapped.success)
-			co_return std::move(overlapped.bytes_transferred);
-
-		co_return 0;
+		co_return total;
 	}
 }

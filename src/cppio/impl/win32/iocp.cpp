@@ -25,12 +25,12 @@ namespace cppio::win32
 
 		auto result = GetQueuedCompletionStatus(m_handle, &bytes_transferred, &completion_key, (OVERLAPPED**)&p_overlapped, delay);
 
-		if (!p_overlapped || !result)
+		if (result == FALSE && !p_overlapped)
 			return;
 
 		if (p_overlapped->type == basic_overlapped::Type::kTcpSocket)
 		{
-			p_overlapped->success = true;
+			p_overlapped->success = result == FALSE ? false : true;
 			p_overlapped->task->wake();
 			p_overlapped->bytes_transferred = bytes_transferred;
 		}

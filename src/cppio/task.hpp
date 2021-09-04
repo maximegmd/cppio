@@ -58,8 +58,8 @@ namespace cppio
         template<impl::meta::derived<promise_base> U>
         bool await_suspend(std::coroutine_handle<U> handle)
         {
-            handle.promise().m_inner_handler = std::coroutine_handle<promise_base>::from_address(m_handle.address());
-            m_handle.promise().m_outer_handler = std::coroutine_handle<promise_base>::from_address(handle.address());
+            handle.promise().m_inner_handle = std::coroutine_handle<promise_base>::from_address(m_handle.address());
+            m_handle.promise().m_outer_handle = std::coroutine_handle<promise_base>::from_address(handle.address());
             return true;
         }
 
