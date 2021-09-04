@@ -178,10 +178,7 @@ Connection: Closed
                 std::printf("Server replied %s\n", buf);
             }
             else
-            {
                 std::printf("Read from server failed\n");
-
-            }
         }
     }
 }
