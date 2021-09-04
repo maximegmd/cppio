@@ -7,12 +7,12 @@
 namespace cppio::network
 {
     task<outcome::result<tcp_socket>> tcp_socket::connect(const network::endpoint& endpoint) noexcept
-	{
-		auto sock = socket(endpoint.type(), SOCK_STREAM, IPPROTO_TCP);
-		if (sock == socket_error)
-			co_return network_error_code::SystemError;
+    {
+        auto sock = socket(endpoint.type(), SOCK_STREAM, IPPROTO_TCP);
+        if (sock == socket_error)
+            co_return network_error_code::SystemError;
 
-		// Don't share the socket
+        // Don't share the socket
         if (fcntl(sock, F_SETFD, FD_CLOEXEC) == socket_error)
         {
             close(sock);
@@ -34,8 +34,8 @@ namespace cppio::network
             co_return network_error_code::SystemError;
         }
 
-		sockaddr_storage addr;
-		endpoint.fill(addr);
+        sockaddr_storage addr;
+        endpoint.fill(addr);
 
         auto result = ::connect(sock, (sockaddr*)&addr, sizeof(addr));
 
@@ -56,11 +56,11 @@ namespace cppio::network
         if(overlapped.success)
             co_return tcp_socket{ sock };
 
-		co_return network_error_code::SystemError;
-	}
+        co_return network_error_code::SystemError;
+    }
 
-	task<outcome::result<size_t>> tcp_socket::read(void* p_buffer, size_t size) noexcept
-	{
+    task<outcome::result<size_t>> tcp_socket::read(void* p_buffer, size_t size) noexcept
+    {
         while(true)
         {
             auto result = recv(m_socket, (char*)p_buffer, size, 0);
@@ -84,12 +84,12 @@ namespace cppio::network
                 co_return cppio::network_error_code::Closed;
         }
 
-		co_return 0;
-	}
+        co_return 0;
+    }
 
-	task<outcome::result<size_t>> tcp_socket::write(const void* p_buffer, size_t size) noexcept
-	{
-		posix::basic_overlapped overlapped(posix::basic_overlapped::Type::kTcpSocket);
+    task<outcome::result<size_t>> tcp_socket::write(const void* p_buffer, size_t size) noexcept
+    {
+        posix::basic_overlapped overlapped(posix::basic_overlapped::Type::kTcpSocket);
         
         size_t sent = 0;
         while(sent < size)
@@ -114,6 +114,6 @@ namespace cppio::network
             }
         }
 
-		co_return sent;
-	}
+        co_return sent;
+    }
 }

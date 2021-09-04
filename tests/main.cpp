@@ -180,7 +180,7 @@ Connection: Closed
             else
             {
                 std::printf("Read from server failed\n");
-                co_return false;
+
             }
         }
     }

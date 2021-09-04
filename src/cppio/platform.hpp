@@ -24,11 +24,11 @@ namespace outcome = OUTCOME_V2_NAMESPACE;
 #include <cppio/impl/win32/defines.hpp>
 namespace cppio
 {
-	using win32::handle_t;
-	using win32::socket_t;
+    using win32::handle_t;
+    using win32::socket_t;
 
-	using win32::socket_invalid_handle;
-	using win32::socket_error;
+    using win32::socket_invalid_handle;
+    using win32::socket_error;
 }
 #endif
 
@@ -45,12 +45,12 @@ namespace cppio
 
 namespace cppio
 {
-	using posix::handle_t;
-	using posix::socket_t;
-	using posix::closesocket;
+    using posix::handle_t;
+    using posix::socket_t;
+    using posix::closesocket;
 
-	using posix::socket_invalid_handle;
-	using posix::socket_error;
+    using posix::socket_invalid_handle;
+    using posix::socket_error;
 }
 #endif
    

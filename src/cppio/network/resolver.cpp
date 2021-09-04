@@ -2,7 +2,7 @@
 
 namespace cppio
 {
-	resolver::resolver()
-	{
-	}
+    resolver::resolver()
+    {
+    }
 }

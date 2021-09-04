@@ -12,19 +12,19 @@ namespace cppio
 
 namespace cppio::posix
 {
-	struct basic_overlapped
-	{
-		enum class Type
-		{
-			kTcpSocket
-		};
+    struct basic_overlapped
+    {
+        enum class Type
+        {
+            kTcpSocket
+        };
 
-		basic_overlapped(Type a_type);
+        basic_overlapped(Type a_type);
 
-		Type type;
-		bool success{ false };
-		std::shared_ptr<basic_task> task;
-	};
+        Type type;
+        bool success{ false };
+        std::shared_ptr<basic_task> task;
+    };
 }
 
 #endif

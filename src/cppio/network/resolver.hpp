@@ -4,8 +4,8 @@
 
 namespace cppio
 {
-	struct resolver
-	{
-		resolver();
-	};
+    struct resolver
+    {
+        resolver();
+    };
 }

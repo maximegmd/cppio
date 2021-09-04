@@ -6,35 +6,35 @@
 
 namespace cppio
 {
-	struct basic_task;
+    struct basic_task;
 }
 
 namespace cppio::impl
 {
-	struct timer_pool
-	{
-		timer_pool();
-		~timer_pool();
+    struct timer_pool
+    {
+        timer_pool();
+        ~timer_pool();
 
-		void add(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task);
+        void add(std::chrono::nanoseconds delay, std::shared_ptr<basic_task> p_task);
 
-		void process();
-		std::chrono::nanoseconds get_delay();
+        void process();
+        std::chrono::nanoseconds get_delay();
 
-	private:
+    private:
 
-		struct delay_for
-		{
-			std::chrono::time_point<std::chrono::high_resolution_clock> when;
-			std::shared_ptr<basic_task> p_task;
+        struct delay_for
+        {
+            std::chrono::time_point<std::chrono::high_resolution_clock> when;
+            std::shared_ptr<basic_task> p_task;
 
-			bool operator<(const delay_for& rhs) const
-			{
-				return when < rhs.when;
-			}
-		};
+            bool operator<(const delay_for& rhs) const
+            {
+                return when < rhs.when;
+            }
+        };
 
-		std::mutex m_lock;
-		std::set<delay_for> m_tasks;
-	};
+        std::mutex m_lock;
+        std::set<delay_for> m_tasks;
+    };
 }

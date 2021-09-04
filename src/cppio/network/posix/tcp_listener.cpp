@@ -7,12 +7,12 @@
 namespace cppio::network
 {
     outcome::result<tcp_listener> tcp_listener::create(const endpoint& local_endpoint) noexcept
-	{
-		auto sock = socket(local_endpoint.type(), SOCK_STREAM, IPPROTO_TCP);
-		if (sock == socket_error)
-		{
-			return network_error_code::SystemError;
-		}
+    {
+        auto sock = socket(local_endpoint.type(), SOCK_STREAM, IPPROTO_TCP);
+        if (sock == socket_error)
+        {
+            return network_error_code::SystemError;
+        }
 
         int on = 1;
         if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == socket_error) 
@@ -50,21 +50,21 @@ namespace cppio::network
             return network_error_code::SystemError;
         }
 
-		sockaddr_storage addr;
-		local_endpoint.fill(addr);	
+        sockaddr_storage addr;
+        local_endpoint.fill(addr);    
 
-		if (bind(sock, (const sockaddr*)&addr, sizeof(addr)) == socket_error)
-		{
-			return network_error_code::SystemError;
-		}
+        if (bind(sock, (const sockaddr*)&addr, sizeof(addr)) == socket_error)
+        {
+            return network_error_code::SystemError;
+        }
 
-		listen(sock, 100);
+        listen(sock, 100);
 
-		return std::move(tcp_listener(sock));
-	}
+        return std::move(tcp_listener(sock));
+    }
 
-	task<outcome::result<tcp_socket>> tcp_listener::accept()
-	{
+    task<outcome::result<tcp_socket>> tcp_listener::accept()
+    {
         posix::basic_overlapped ov(posix::basic_overlapped::Type::kTcpSocket);
 
         auto& completion_port = reactor::get_current()->get_completion_port();
@@ -83,6 +83,6 @@ namespace cppio::network
             co_return tcp_socket{ sock };
         }
 
-		co_return network_error_code::SystemError;
-	}
+        co_return network_error_code::SystemError;
+    }
 }
