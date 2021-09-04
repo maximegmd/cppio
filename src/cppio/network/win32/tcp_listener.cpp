@@ -3,7 +3,7 @@
 
 namespace cppio::network
 {
-    outcome::result<tcp_listener> tcp_listener::create(uint16_t port) noexcept
+    outcome::result<tcp_listener> tcp_listener::create(const endpoint& local_endpoint) noexcept
 	{
 		auto sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 		if (sock == SOCKET_ERROR)
@@ -11,10 +11,8 @@ namespace cppio::network
 			return network_error_code::SystemError;
 		}
 
-		sockaddr_in addr;
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
-		addr.sin_port = htons(port);
+		sockaddr_storage addr;
+		local_endpoint.fill(addr);		
 
 		if (bind(sock, (const sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
 		{

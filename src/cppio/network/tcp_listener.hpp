@@ -13,7 +13,7 @@ namespace cppio::network
 		tcp_listener& operator=(tcp_listener&&) = default;
 		tcp_listener(socket_t socket);
 
-		static outcome::result<tcp_listener> create(uint16_t port) noexcept;
+		static outcome::result<tcp_listener> create(const endpoint& local_endpoint) noexcept;
 
 		task<outcome::result<tcp_socket>> accept();
 	};

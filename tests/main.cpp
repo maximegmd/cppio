@@ -55,7 +55,7 @@ Connection: Closed
     task<bool> http_test()
     {
         // Try to listen on port 12345.
-        auto listener_result = cppio::network::tcp_listener::create(12345);
+        auto listener_result = cppio::network::tcp_listener::create(cppio::network::endpoint::parse("0.0.0.0:12345").value());
         if (!listener_result)
             co_return false;
 
@@ -171,10 +171,10 @@ int main()
 
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
     // note that you can spawn multiple coroutines from anywhere without waiting.
-    //cppio::spawn(http_test());
+    cppio::spawn(http_test());
 
     // Run a client test
-    //cppio::spawn(client_test());
+    cppio::spawn(client_test());
 
     cppio::spawn(udp_server());
     cppio::spawn(udp_client());
