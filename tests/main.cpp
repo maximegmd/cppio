@@ -4,6 +4,7 @@
 #include <cppio/network/udp_socket.hpp>
 #include <cppio/network/tcp_listener.hpp>
 #include <cppio/network/http/request.hpp>
+#include <cppio/network/http/response.hpp>
 #include <cppio/cppio.hpp>
 #include <iostream>
 
@@ -16,33 +17,36 @@ namespace
         // Pretend we are doing some database work or something
         co_await cppio::sleep(std::chrono::seconds(1));
 
-        auto response = R"V0G0N(HTTP/1.1 200 OK
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Server: cppio/0.0.1
-Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-Content-Length: )V0G0N" + std::to_string(data.size()) + "\n"
-R"V0G0N(Content-Type: text/html
-Connection: Closed
+        cppio::network::http::response r;
+        r.get_headers().add("Date", "Mon, 27 Jul 2009 12:28:53 GMT");
+        r.get_headers().add("Server", "cppio/0.0.1");
+        r.get_headers().add("Last-Modified", "Wed, 22 Jul 2009 19:15:56 GMT");
+        r.get_headers().add("Content-Type", "text/html");
+        r.get_headers().add("Connection", "Closed");
+        r.set_content("<html><h1>Hi !</h1></html>");
 
-)V0G0N" + data;
-
-        // co_return isn't exactly "return but for coroutines", it actually stores the result is task<T>
-        // therefore we move the result is task<T>, there is no RVO for coroutines, don't worry.
-        co_return std::move(response);
+        co_return r.serialize();
     }
 
     task<> http_hello(cppio::network::tcp_socket connection)
     {
-        char data[1025];
-        // Very simple read, we try to get at most 1024 bytes
-        auto read_res = co_await connection.read(data, 1024);
+        char data[4097];
+        // Very simple read, we try to get at most 4096 bytes
+        auto read_res = co_await connection.read(data, 4096);
         if(!read_res)
             co_return;
 
         auto read = read_res.value();
         data[read] = 0;
 
-        std::printf("read: \n%s\n", data);
+        std::printf(data);
+
+        auto request = cppio::network::http::request::create(data);
+        if (!request)
+        {
+            std::printf("Malformed request!\n");
+            co_return;
+        }
 
         static std::atomic<int> counter = 0;
 
@@ -191,12 +195,6 @@ int main()
     // This must be called before any other cppio call, here we start 4 background workers.
     if (!cppio::initialize(0))
         return -1;
-
-    cppio::network::http::request::create(
-        std::string("GET / HTTP/1.1\r\n") +
-        "Date: Mon, 27 Jul 2009 12 : 28 : 53 GMT\r\n" +
-        "Server: cppio/0.0.1\r\n" +
-        "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n");
 
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
     // note that you can spawn multiple coroutines from anywhere without waiting.

@@ -23,6 +23,9 @@ namespace cppio::network::http
             map.add(std::string(current_view.substr(0, header_pos)), std::string(current_view.substr(header_pos + 2)));
 
             text = text.substr(pos + 2);
+
+            if (pos == std::string_view::npos)
+                break;
         }
 
         return map;
