@@ -28,7 +28,7 @@ namespace cppio::win32
         if (result == FALSE && !p_overlapped)
             return;
 
-        if (p_overlapped->type == basic_overlapped::Type::kTcpSocket)
+        if (p_overlapped && p_overlapped->type == basic_overlapped::Type::kTcpSocket)
         {
             p_overlapped->success = result == FALSE ? false : true;
             p_overlapped->bytes_transferred = bytes_transferred;

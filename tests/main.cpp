@@ -23,7 +23,7 @@ namespace
         r.headers().add("Last-Modified", "Wed, 22 Jul 2009 19:15:56 GMT");
         r.headers().add("Content-Type", "text/html");
         r.headers().add("Connection", "Closed");
-        r.set_content("<html><h1>Hi !</h1></html>");
+        r.set_content(data);
 
         co_return r.serialize();
     }
@@ -191,7 +191,7 @@ namespace
 int main()
 {
     // This must be called before any other cppio call, here we start 4 background workers.
-    if (!cppio::initialize(0))
+    if (!cppio::initialize(4))
         return -1;
 
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
