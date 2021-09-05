@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cppio/network/http/header.hpp>
 #include <map>
 #include <vector>
 
@@ -29,4 +28,4 @@ namespace cppio::network::http
 
 #define CPPIO_NETWORK_HTTP_HEADER_MAP_INL_DO
 #include <cppio/network/http/header_map.inl>
-#undef CPPIO_NETWORK_HTTP_HEADER_INL_DO
+#undef CPPIO_NETWORK_HTTP_HEADER_MAP_INL_DO

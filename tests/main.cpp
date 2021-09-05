@@ -3,7 +3,7 @@
 #include <cppio/network/tcp_socket.hpp>
 #include <cppio/network/udp_socket.hpp>
 #include <cppio/network/tcp_listener.hpp>
-#include <cppio/network/http/header_map.hpp>
+#include <cppio/network/http/request.hpp>
 #include <cppio/cppio.hpp>
 #include <iostream>
 
@@ -41,6 +41,8 @@ Connection: Closed
 
         auto read = read_res.value();
         data[read] = 0;
+
+        std::printf("read: \n%s\n", data);
 
         static std::atomic<int> counter = 0;
 
@@ -190,23 +192,24 @@ int main()
     if (!cppio::initialize(0))
         return -1;
 
-    cppio::network::http::header_map::create(
-        std::string("Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n") +
+    cppio::network::http::request::create(
+        std::string("GET / HTTP/1.1\r\n") +
+        "Date: Mon, 27 Jul 2009 12 : 28 : 53 GMT\r\n" +
         "Server: cppio/0.0.1\r\n" +
         "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n");
 
     // sadly main can't be a coroutine so we spawn this that will server as our coroutine entry
     // note that you can spawn multiple coroutines from anywhere without waiting.
-    //cppio::spawn(http_test());
+    cppio::spawn(http_test());
 
     // Run a client test
     //cppio::spawn(client_test());
 
     // Host a udp server
-    cppio::spawn(udp_server());
+    //cppio::spawn(udp_server());
 
     // And run a simple udp client that sends a message every second
-    cppio::spawn(udp_client());
+    //cppio::spawn(udp_client());
 
     // Make sure all tasks complete, this is a work stealing wait, it will process tasks.
     cppio::wait_for_all();
