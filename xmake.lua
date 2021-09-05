@@ -9,10 +9,15 @@ target("cppio")
     add_files("src/cppio/*.cpp")
     add_files("src/cppio/impl/*.cpp")
     add_files("src/cppio/network/*.cpp")
+    add_files("src/cppio/network/http/*.cpp")
+    add_files("src/cppio/network/redis/*.cpp")
 
     add_headerfiles("src/cppio/*.hpp", "src/cppio/*.inl")
     add_headerfiles("src/cppio/impl/*.hpp", "src/cppio/impl/*.inl")
     add_headerfiles("src/cppio/network/*.hpp", "src/cppio/network/*.inl")
+    add_headerfiles("src/cppio/network/http/*.hpp", "src/cppio/network/http/*.inl")
+    add_headerfiles("src/cppio/network/redis/*.hpp", "src/cppio/network/redis/*.inl")
+
     add_includedirs("src/", {public = true})
     add_includedirs("vendor/outcome/single-header", {public = true})
 
