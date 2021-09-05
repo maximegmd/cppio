@@ -15,11 +15,11 @@ namespace cppio::network::http
         request& operator=(const request& rhs) noexcept;
         request& operator=(request&& rhs) noexcept;
 
-        method get_method() const noexcept;
-        const std::string& get_path() const noexcept;
-        const std::string& get_version() const noexcept;
+        cppio::network::http::method method() const noexcept;
+        const std::string& path() const noexcept;
+        const std::string& version() const noexcept;
 
-        void set_method(method m) noexcept;
+        void set_method(cppio::network::http::method m) noexcept;
         void set_path(const std::string& path) noexcept;
         void set_version(const std::string& version) noexcept;
 
@@ -27,7 +27,7 @@ namespace cppio::network::http
 
     private:
 
-        method m_method{};
+        cppio::network::http::method m_method{};
         std::string m_version{"HTTP/1.1"};
         std::string m_path{};
         header_map m_headers{};

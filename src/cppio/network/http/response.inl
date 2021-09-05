@@ -80,27 +80,27 @@ namespace cppio::network::http
         return *this;
     }
 
-    inline uint32_t response::get_status() const noexcept
+    inline uint32_t response::status() const noexcept
     {
         return m_code;
     }
 
-    inline const std::string& response::get_version() const noexcept
+    inline const std::string& response::version() const noexcept
     {
         return m_version;
     }
 
-    inline const std::string& response::get_content() const noexcept
+    inline const std::string& response::content() const noexcept
     {
         return m_content;
     }
 
-    inline header_map& response::get_headers() noexcept
+    inline header_map& response::headers() noexcept
     {
         return m_headers;
     }
 
-    inline const header_map& response::get_headers() const noexcept
+    inline const header_map& response::headers() const noexcept
     {
         return m_headers;
     }
@@ -126,10 +126,10 @@ namespace cppio::network::http
 
         m_headers.add("Content-Length", std::to_string(m_content.size()));
 
-        out += m_version + " " + std::to_string(m_code) + " OK" + std::string(LINE_END);
+        out += version() + " " + std::to_string(status()) + " OK" + std::string(LINE_END);
         out += m_headers.serialize();
         out += std::string(LINE_END);
-        out += get_content();
+        out += content();
         // content
 
         return out;

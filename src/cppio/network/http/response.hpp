@@ -15,11 +15,11 @@ namespace cppio::network::http
         response& operator=(const response& rhs) noexcept;
         response& operator=(response&& rhs) noexcept;
 
-        uint32_t get_status() const noexcept;
-        const std::string& get_version() const noexcept;
-        const std::string& get_content() const noexcept;
-        header_map& get_headers() noexcept;
-        const header_map& get_headers() const noexcept;
+        uint32_t status() const noexcept;
+        const std::string& version() const noexcept;
+        const std::string& content() const noexcept;
+        header_map& headers() noexcept;
+        const header_map& headers() const noexcept;
 
         void set_status(uint32_t code) noexcept;
         void set_version(const std::string& version) noexcept;

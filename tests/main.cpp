@@ -18,11 +18,11 @@ namespace
         co_await cppio::sleep(std::chrono::seconds(1));
 
         cppio::network::http::response r;
-        r.get_headers().add("Date", "Mon, 27 Jul 2009 12:28:53 GMT");
-        r.get_headers().add("Server", "cppio/0.0.1");
-        r.get_headers().add("Last-Modified", "Wed, 22 Jul 2009 19:15:56 GMT");
-        r.get_headers().add("Content-Type", "text/html");
-        r.get_headers().add("Connection", "Closed");
+        r.headers().add("Date", "Mon, 27 Jul 2009 12:28:53 GMT");
+        r.headers().add("Server", "cppio/0.0.1");
+        r.headers().add("Last-Modified", "Wed, 22 Jul 2009 19:15:56 GMT");
+        r.headers().add("Content-Type", "text/html");
+        r.headers().add("Connection", "Closed");
         r.set_content("<html><h1>Hi !</h1></html>");
 
         co_return r.serialize();
@@ -38,8 +38,6 @@ namespace
 
         auto read = read_res.value();
         data[read] = 0;
-
-        std::printf(data);
 
         auto request = cppio::network::http::request::create(data);
         if (!request)

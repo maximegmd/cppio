@@ -81,22 +81,22 @@ namespace cppio::network::http
         return *this;
     }
 
-    inline method request::get_method() const noexcept
+    inline cppio::network::http::method request::method() const noexcept
     {
         return m_method;
     }
 
-    inline const std::string& request::get_path() const noexcept
+    inline const std::string& request::path() const noexcept
     {
         return m_path;
     }
 
-    inline const std::string& request::get_version() const noexcept
+    inline const std::string& request::version() const noexcept
     {
         return m_version;
     }
 
-    inline void request::set_method(method m) noexcept
+    inline void request::set_method(cppio::network::http::method m) noexcept
     {
         m_method = m;
     }
