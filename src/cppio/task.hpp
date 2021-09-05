@@ -106,7 +106,12 @@ namespace cppio
         void return_value(U&& t)
         {
             m_value = std::forward<U>(t);
-            task_promise::m_notifier.set_value();
+            try
+            {
+                task_promise::m_notifier.set_value();
+            }
+            catch (std::exception& e)
+            {}
         }
 
         task<U> get_return_object()

@@ -4,6 +4,7 @@
 
 #include <cppio/network/http/http.hpp>
 #include <cppio/network/http/request.hpp>
+#include <cppio/network/http/encoding.hpp>
 
 #include <charconv>
 
@@ -44,6 +45,34 @@ namespace cppio::network::http
 
         r.m_headers = std::move(headers.value());
 
+        auto arg_delim = r.m_path.find_first_of('?');
+        if (arg_delim != std::string::npos)
+        {
+            std::string_view path = r.m_path;
+            auto args = path.substr(arg_delim + 1);
+            while (!args.empty())
+            {
+                auto separator_pos = args.find_first_of('&');
+
+                auto data = args.substr(0, separator_pos);
+
+                auto equal_pos = data.find_first_of('=');
+                auto key = data.substr(0, equal_pos);
+                std::string_view value;
+                if (equal_pos != std::string_view::npos)
+                    value = data.substr(equal_pos + 1);
+
+                r.m_parameters[std::string(key)] = url_decode(std::string(value));
+
+                args = args.substr(separator_pos + 1);
+
+                if (separator_pos == std::string_view::npos)
+                    break;
+            }
+
+            r.m_path = r.m_path.substr(0, arg_delim);
+        }
+
         return r;
     }
 
@@ -52,6 +81,7 @@ namespace cppio::network::http
         , m_version(rhs.m_version)
         , m_path(rhs.m_path)
         , m_headers(rhs.m_headers)
+        , m_parameters(rhs.m_parameters)
     {
     }
 
@@ -60,6 +90,7 @@ namespace cppio::network::http
         , m_version(std::exchange(rhs.m_version, {}))
         , m_path(std::exchange(rhs.m_path, {}))
         , m_headers(std::exchange(rhs.m_headers, {}))
+        , m_parameters(std::exchange(rhs.m_parameters, {}))
     {
     }
 
@@ -69,6 +100,7 @@ namespace cppio::network::http
         m_version = rhs.m_version;
         m_path = rhs.m_path;
         m_headers = rhs.m_headers;
+        m_parameters = rhs.m_parameters;
         return *this;
     }
 
@@ -78,6 +110,7 @@ namespace cppio::network::http
         std::swap(m_version, rhs.m_version);
         std::swap(m_path, rhs.m_path);
         std::swap(m_headers, rhs.m_headers);
+        std::swap(m_parameters, rhs.m_parameters);
         return *this;
     }
 
@@ -94,6 +127,16 @@ namespace cppio::network::http
     inline const std::string& request::version() const noexcept
     {
         return m_version;
+    }
+
+    inline const request::parameter_map_t& request::parameters() const noexcept
+    {
+        return m_parameters;
+    }
+
+    inline request::parameter_map_t& request::parameters() noexcept
+    {
+        return m_parameters;
     }
 
     inline void request::set_method(cppio::network::http::method m) noexcept
@@ -114,7 +157,19 @@ namespace cppio::network::http
     inline std::string request::serialize() const noexcept
     {
         std::string out;
-        out += to_string(m_method) + " " + m_path + " " + m_version + std::string(LINE_END);
+
+        out += to_string(m_method) + " " + m_path;
+
+        if (m_parameters.size())
+        {
+            out += "?";
+            for (auto& [key, value] : m_parameters)
+            {
+                out += url_encode(key) + "=" + url_encode(value);
+            }
+        }
+
+        out += " " + m_version + std::string(LINE_END);
         out += m_headers.serialize();
         out += std::string(LINE_END);
         // content
